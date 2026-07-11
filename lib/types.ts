@@ -15,7 +15,7 @@ export type Store = {
   active: boolean
 }
 
-export type DiscountType = 'percentual' | 'fixo' | 'frete_gratis'
+export type DiscountType = 'percentual' | 'fixo' | 'frete_gratis' | 'outro'
 
 export type Coupon = {
   id: string
@@ -29,4 +29,19 @@ export type Coupon = {
   expires_at: string | null
   active: boolean
   clicks: number
+  is_highlight: boolean
+  helpful_count: number
+  not_helpful_count: number
 }
+
+export type CouponWithStore = Coupon & {
+  stores: {
+    name: string
+    slug: string
+    logo_url: string | null
+    description: string | null
+    categories: { name: string } | null
+  } | null
+}
+
+export type SortOption = 'novos' | 'populares' | 'expirando'

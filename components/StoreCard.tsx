@@ -1,14 +1,28 @@
-import Link from 'next/link'
-import type { Store } from '@/lib/types'
+import Link from "next/link";
+import Image from "next/image";
+import type { Store } from "@/lib/types";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 export function StoreCard({ store }: { store: Store }) {
   return (
-    <Link
-      href={`/loja/${store.slug}`}
-      className="rounded-lg border border-black/10 p-4 transition-colors hover:border-brand"
-    >
-      <h3 className="font-semibold text-brand-dark">{store.name}</h3>
-      {store.description && <p className="mt-1 text-sm text-black/60">{store.description}</p>}
+    <Link href={`/loja/${store.slug}`} className="block">
+      <Card className="group h-full transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand/40">
+        <CardHeader>
+          {store.logo_url && (
+            <div className="relative mb-2 h-10 w-28 overflow-hidden rounded-md">
+              <Image
+                src={store.logo_url}
+                alt={store.name}
+                fill
+                className="object-contain object-left"
+                unoptimized
+              />
+            </div>
+          )}
+          <CardTitle className="text-foreground group-hover:text-brand-text">{store.name}</CardTitle>
+          {store.description && <CardDescription>{store.description}</CardDescription>}
+        </CardHeader>
+      </Card>
     </Link>
-  )
+  );
 }

@@ -27,13 +27,13 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold text-brand-dark">{category.name}</h1>
-        <p className="text-black/60">Lojas com cupons de desconto na categoria {category.name}.</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">{category.name}</h1>
+        <p className="text-muted-foreground">Lojas com cupons de desconto na categoria {category.name}.</p>
       </section>
 
       <section className="flex flex-col gap-4">
         {stores.length === 0 ? (
-          <p className="text-black/60">Nenhuma loja nesta categoria ainda.</p>
+          <p className="text-muted-foreground">Nenhuma loja nesta categoria ainda.</p>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             {stores.map((store) => (

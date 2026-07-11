@@ -1,32 +1,109 @@
-import type { Coupon } from '@/lib/types'
+import Image from "next/image";
+import Link from "next/link";
+import { Copy, Flame } from "lucide-react";
+import type { Coupon } from "@/lib/types";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CouponFooter } from "@/components/CouponFooter";
+import { CopyCouponButton } from "@/components/CopyCouponButton";
+import { TruncatedText } from "@/components/TruncatedText";
+import { avatarBgColorFor } from "@/lib/badge-colors";
+import { cn } from "@/lib/utils";
+
+type CouponCardStore = {
+  name: string;
+  slug: string;
+  logo_url: string | null;
+};
 
 function formatDiscount(coupon: Coupon) {
-  if (coupon.discount_type === 'percentual') return `${coupon.discount_value}% OFF`
-  if (coupon.discount_type === 'fixo') return `R$${coupon.discount_value} OFF`
-  return 'Frete Grátis'
+  if (coupon.discount_type === "percentual") return `${coupon.discount_value}% OFF`;
+  if (coupon.discount_type === "fixo" && coupon.discount_value !== null) {
+    return `R$${coupon.discount_value.toFixed(2).replace(".", ",")} OFF`;
+  }
+  if (coupon.discount_type === "frete_gratis") return "Frete Grátis";
+  return "Oferta";
 }
 
-export function CouponCard({ coupon }: { coupon: Coupon }) {
+// Alguns cupons da Lomadee não têm um nome de campanha "humano" — o título
+// vem igual ao próprio código. Nesses casos, mostramos uma frase genérica
+// em vez de repetir o código como se fosse um título.
+function displayTitle(coupon: Coupon) {
+  const isTitleJustTheCode = coupon.code && coupon.title.trim().toLowerCase() === coupon.code.trim().toLowerCase();
+  if (!isTitleJustTheCode) return coupon.title;
+  if (coupon.discount_type === "outro") return "Confira esta oferta especial nesta loja.";
+  return `Aproveite ${formatDiscount(coupon)} nesta loja.`;
+}
+
+export function CouponCard({ coupon, store }: { coupon: Coupon; store: CouponCardStore }) {
+  const avatarBg = avatarBgColorFor(store.name);
+
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-black/10 p-4">
-      <span className="w-fit rounded bg-brand/10 px-2 py-1 text-sm font-semibold text-brand-dark">
-        {formatDiscount(coupon)}
-      </span>
-      <h3 className="font-semibold text-brand-dark">{coupon.title}</h3>
-      {coupon.description && <p className="text-sm text-black/60">{coupon.description}</p>}
-      {coupon.code && (
-        <p className="text-sm text-black/60">
-          Código: <span className="font-mono font-semibold">{coupon.code}</span>
-        </p>
-      )}
-      <a
-        href={`/ir/${coupon.id}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-2 inline-block rounded-md bg-brand px-4 py-2 text-center font-semibold text-white transition-opacity hover:opacity-90"
-      >
-        Aplicar cupom
-      </a>
-    </div>
-  )
+    <Card className="h-full transition-all hover:-translate-y-0.5 hover:shadow-lg">
+      <CardHeader>
+        <div className="flex items-start justify-between gap-3">
+          <Link
+            href={`/loja/${store.slug}`}
+            className="flex items-center gap-2 text-base font-semibold text-foreground hover:text-brand-text"
+          >
+            {store.logo_url ? (
+              <span className="relative size-8 shrink-0 overflow-hidden rounded-lg bg-white">
+                <Image src={store.logo_url} alt={store.name} fill className="object-contain p-1" unoptimized />
+              </span>
+            ) : (
+              <span
+                className={cn(
+                  "flex size-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white",
+                  avatarBg
+                )}
+              >
+                {store.name.charAt(0)}
+              </span>
+            )}
+            {store.name}
+          </Link>
+          <Badge variant="brand" className="h-auto shrink-0 rounded-lg px-3 py-1.5 text-sm font-bold">
+            {formatDiscount(coupon)}
+          </Badge>
+        </div>
+
+        {coupon.is_highlight && (
+          <Badge variant="outline" className="w-fit gap-1 border-brand/40 text-brand-text">
+            <Flame className="size-3" />
+            Destaque
+          </Badge>
+        )}
+
+        <TruncatedText text={displayTitle(coupon)} className="mt-1 text-sm text-description-foreground" />
+        {coupon.description && (
+          <TruncatedText text={coupon.description} className="text-sm text-description-foreground" />
+        )}
+      </CardHeader>
+
+      <CardContent className="flex flex-col gap-3">
+        {coupon.code && (
+          <div data-slot="coupon-code" className="flex items-center gap-2">
+            <div className="flex flex-1 items-center gap-2 overflow-hidden rounded-md border border-dashed border-border bg-muted px-3 py-2 font-mono text-sm font-semibold">
+              <Copy className="size-3.5 shrink-0 text-muted-foreground" />
+              <span className="truncate">{coupon.code}</span>
+            </div>
+            <CopyCouponButton couponId={coupon.id} code={coupon.code} />
+          </div>
+        )}
+        {!coupon.code && (
+          <CardFooter className="border-t-0 bg-transparent p-0">
+            <CopyCouponButton couponId={coupon.id} code={coupon.code} />
+          </CardFooter>
+        )}
+
+        <CouponFooter
+          couponId={coupon.id}
+          initialHelpful={coupon.helpful_count}
+          initialNotHelpful={coupon.not_helpful_count}
+          expiresAt={coupon.expires_at}
+          clicks={coupon.clicks}
+        />
+      </CardContent>
+    </Card>
+  );
 }

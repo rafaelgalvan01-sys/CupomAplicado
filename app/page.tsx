@@ -1,43 +1,80 @@
-import Link from "next/link";
-import { getCategories, getStores } from "@/lib/data";
-import { StoreCard } from "@/components/StoreCard";
+import { Star } from "lucide-react";
+import { getFeaturedCoupons, getCouponsSorted, getTopStores, getActiveCouponsCount } from "@/lib/data";
+import { CouponCard } from "@/components/CouponCard";
+import { StoreCarousel } from "@/components/StoreCarousel";
+import type { CouponWithStore, SortOption } from "@/lib/types";
 
-export default async function Home() {
-  const [categories, stores] = await Promise.all([getCategories(), getStores()]);
+type Props = {
+  searchParams: Promise<{ q?: string; sort?: string }>;
+};
+
+function toStoreProp(coupon: CouponWithStore) {
+  return {
+    name: coupon.stores?.name ?? "Loja",
+    slug: coupon.stores?.slug ?? "",
+    logo_url: coupon.stores?.logo_url ?? null,
+  };
+}
+
+const VALID_SORTS: SortOption[] = ["novos", "populares", "expirando"];
+
+export default async function Home({ searchParams }: Props) {
+  const { q, sort } = await searchParams;
+  const sortOption = VALID_SORTS.includes(sort as SortOption) ? (sort as SortOption) : "novos";
+
+  const [featured, coupons, topStores, activeCount] = await Promise.all([
+    q ? Promise.resolve([]) : getFeaturedCoupons(),
+    getCouponsSorted({ sort: sortOption, query: q }),
+    getTopStores(10),
+    getActiveCouponsCount(),
+  ]);
 
   return (
-    <div className="flex flex-col gap-12">
-      <section className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold text-brand-dark">
-          Cupons de desconto e promoções
+    <div className="flex flex-col gap-14">
+      <section className="flex flex-col items-center gap-3 py-6 text-center">
+        <span className="flex items-center gap-2 rounded-full bg-brand/15 px-3 py-1 text-xs font-medium text-brand-text">
+          <span className="size-1.5 rounded-full bg-brand" />
+          {activeCount} {activeCount === 1 ? "cupom ativo hoje" : "cupons ativos hoje"}
+        </span>
+        <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+          Economize em cada compra
         </h1>
-        <p className="text-black/60">
-          Economize nas suas compras com cupons verificados das melhores lojas.
+        <p className="max-w-xl text-lg text-muted-foreground">
+          Cupons verificados pela comunidade. Vote se funcionou para ajudar outros usuários.
         </p>
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-xl font-semibold text-brand-dark">Categorias</h2>
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/categoria/${category.slug}`}
-              className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium transition-colors hover:border-brand hover:text-brand"
-            >
-              {category.name}
-            </Link>
-          ))}
-        </div>
+        <StoreCarousel stores={topStores} />
       </section>
 
+      {featured.length > 0 && (
+        <section className="flex flex-col gap-4">
+          <h2 className="flex items-center gap-1.5 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+            <Star className="size-3.5 fill-current text-brand-text" />
+            Destaques
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {featured.map((coupon) => (
+              <CouponCard key={coupon.id} coupon={coupon} store={toStoreProp(coupon)} />
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="flex flex-col gap-4">
-        <h2 className="text-xl font-semibold text-brand-dark">Lojas</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {stores.map((store) => (
-            <StoreCard key={store.id} store={store} />
-          ))}
-        </div>
+        <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+          {q ? `Resultados para "${q}"` : "Todos os cupons"}
+        </h2>
+        {coupons.length === 0 ? (
+          <p className="text-muted-foreground">Nenhum cupom encontrado.</p>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {coupons.map((coupon) => (
+              <CouponCard key={coupon.id} coupon={coupon} store={toStoreProp(coupon)} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
