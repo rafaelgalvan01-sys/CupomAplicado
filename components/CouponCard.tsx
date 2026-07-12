@@ -35,7 +35,15 @@ function displayTitle(coupon: Coupon) {
   return `Aproveite ${formatDiscount(coupon)} nesta loja.`;
 }
 
-export function CouponCard({ coupon, store }: { coupon: Coupon; store: CouponCardStore }) {
+export function CouponCard({
+  coupon,
+  store,
+  priority = false,
+}: {
+  coupon: Coupon;
+  store: CouponCardStore;
+  priority?: boolean;
+}) {
   const avatarBg = avatarBgColorFor(store.name);
 
   return (
@@ -48,7 +56,14 @@ export function CouponCard({ coupon, store }: { coupon: Coupon; store: CouponCar
           >
             {store.logo_url ? (
               <span className="relative size-8 shrink-0 overflow-hidden rounded-lg bg-white">
-                <Image src={store.logo_url} alt={store.name} fill sizes="32px" className="object-contain p-1" />
+                <Image
+                  src={store.logo_url}
+                  alt={store.name}
+                  fill
+                  sizes="32px"
+                  priority={priority}
+                  className="object-contain p-1"
+                />
               </span>
             ) : (
               <span

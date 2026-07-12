@@ -1,8 +1,16 @@
 import type { Metadata } from "next";
-import { Star } from "lucide-react";
-import { getFeaturedCoupons, getCouponsSorted, getTopStores, getActiveCouponsCount } from "@/lib/data";
+import Link from "next/link";
+import { Star, Tag } from "lucide-react";
+import {
+  getFeaturedCoupons,
+  getCouponsSorted,
+  getTopStores,
+  getActiveCouponsCount,
+  getCategories,
+} from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
 import { StoreCarousel } from "@/components/StoreCarousel";
+import { Badge } from "@/components/ui/badge";
 import type { CouponWithStore, SortOption } from "@/lib/types";
 
 type Props = {
@@ -33,11 +41,12 @@ export default async function Home({ searchParams }: Props) {
   const { q, sort } = await searchParams;
   const sortOption = VALID_SORTS.includes(sort as SortOption) ? (sort as SortOption) : "novos";
 
-  const [featured, coupons, topStores, activeCount] = await Promise.all([
+  const [featured, coupons, topStores, activeCount, categories] = await Promise.all([
     q ? Promise.resolve([]) : getFeaturedCoupons(),
     getCouponsSorted({ sort: sortOption, query: q }),
     getTopStores(10),
     getActiveCouponsCount(),
+    getCategories(),
   ]);
 
   return (
@@ -59,6 +68,27 @@ export default async function Home({ searchParams }: Props) {
         <StoreCarousel stores={topStores} />
       </section>
 
+      {categories.length > 0 && (
+        <section className="flex flex-col gap-4">
+          <h2 className="flex items-center gap-1.5 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+            <Tag className="size-3.5 text-brand-text" />
+            Categorias
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <Badge
+                key={category.id}
+                variant="outline"
+                className="h-auto rounded-lg px-3.5 py-2 text-sm font-medium"
+                render={<Link href={`/categoria/${category.slug}`} />}
+              >
+                {category.name}
+              </Badge>
+            ))}
+          </div>
+        </section>
+      )}
+
       {featured.length > 0 && (
         <section className="flex flex-col gap-4">
           <h2 className="flex items-center gap-1.5 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
@@ -66,8 +96,13 @@ export default async function Home({ searchParams }: Props) {
             Destaques
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {featured.map((coupon) => (
-              <CouponCard key={coupon.id} coupon={coupon} store={toStoreProp(coupon)} />
+            {featured.map((coupon, index) => (
+              <CouponCard
+                key={coupon.id}
+                coupon={coupon}
+                store={toStoreProp(coupon)}
+                priority={index === 0}
+              />
             ))}
           </div>
         </section>
@@ -81,8 +116,13 @@ export default async function Home({ searchParams }: Props) {
           <p className="text-muted-foreground">Nenhum cupom encontrado.</p>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {coupons.map((coupon) => (
-              <CouponCard key={coupon.id} coupon={coupon} store={toStoreProp(coupon)} />
+            {coupons.map((coupon, index) => (
+              <CouponCard
+                key={coupon.id}
+                coupon={coupon}
+                store={toStoreProp(coupon)}
+                priority={featured.length === 0 && index === 0}
+              />
             ))}
           </div>
         )}

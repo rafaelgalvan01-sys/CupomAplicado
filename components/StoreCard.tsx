@@ -3,7 +3,7 @@ import Image from "next/image";
 import type { Store } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-export function StoreCard({ store }: { store: Store }) {
+export function StoreCard({ store, priority = false }: { store: Store; priority?: boolean }) {
   return (
     <Link href={`/loja/${store.slug}`} className="block">
       <Card className="group h-full transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand/40">
@@ -15,6 +15,7 @@ export function StoreCard({ store }: { store: Store }) {
                 alt={store.name}
                 fill
                 sizes="112px"
+                priority={priority}
                 className="object-contain object-left"
               />
             </div>

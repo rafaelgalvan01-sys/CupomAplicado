@@ -13,6 +13,10 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
+// Não depende de searchParams/cookies — pode ser gerada estaticamente por
+// slug e revalidada em segundo plano.
+export const revalidate = 300;
+
 type Props = {
   params: Promise<{ slug: string }>;
 };
@@ -85,8 +89,8 @@ export default async function CategoryPage({ params }: Props) {
           <p className="text-muted-foreground">Nenhuma loja nesta categoria ainda.</p>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {stores.map((store) => (
-              <StoreCard key={store.id} store={store} />
+            {stores.map((store, index) => (
+              <StoreCard key={store.id} store={store} priority={index === 0} />
             ))}
           </div>
         )}

@@ -3,3 +3,31 @@
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
+
+# Convenções do projeto (SEO e performance)
+
+Regras fixas, resultado da auditoria de SEO de jul/2026. Aplicar em qualquer página/componente novo, não só nos que já existem.
+
+## Cache
+
+- Toda função nova em `lib/data.ts` que **não** depende de dado por-requisição (sem `searchParams`/`cookies` no meio do caminho) deve ser envolvida em `unstable_cache` (ver `REVALIDATE_SECONDS` no topo do arquivo pro padrão de janela).
+- Toda página dinâmica por slug (`app/**/[slug]/page.tsx`) que não lê `searchParams` deve exportar `export const revalidate = 300` (ou o valor que fizer sentido) logo no topo do arquivo.
+- Exceção conhecida: páginas que leem `searchParams` (ex: a home, por causa de `?q=`/`?sort=`) não se beneficiam de `revalidate` de rota — o cache ali precisa vir da camada de dados mesmo.
+
+## Imagens
+
+- A primeira imagem de qualquer grid/lista/carrossel (índice 0, ou as primeiras ~4 num carrossel) leva `priority` no `<Image>`. As demais, não — `priority` em toda imagem derrota o propósito (atrasa o que devia carregar rápido).
+
+## Metadata e SEO
+
+- Description de página (`generateMetadata`) sempre prioriza o texto mais rico disponível (ex: `seo_description` gerado por IA) antes de qualquer fallback genérico. Truncar em ~155 caracteres cortando na palavra inteira, nunca no meio.
+- Nenhuma entidade com nome/marca própria (loja, e futuramente categoria) usa imagem externa crua (logo de CDN de terceiro) como `og:image`. Sempre um `opengraph-image.tsx` próprio do segmento de rota.
+- Todo filtro de indexabilidade aplicado numa página (`robots: {index:false}`) precisa do espelho exato em `app/sitemap.ts` — nunca listar no sitemap uma URL que a própria página marca `noindex`.
+
+## Navegação interna
+
+- Toda entidade listável que ganha sua própria rota (loja, categoria, o que vier depois) precisa de pelo menos um caminho de navegação a partir da home ou do header — nunca depender só do sitemap pra ser descoberta.
+
+## Componentes (shadcn/Base UI)
+
+- Quando um componente shadcn com suporte a `render` (Button, Badge) funciona como navegação, usar `render={<Link href=... />}` — nunca estilizar um `<a>` cru pra imitar o visual, nem `onClick` + `router.push` pra navegação simples.

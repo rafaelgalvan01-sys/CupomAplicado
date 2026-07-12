@@ -51,6 +51,7 @@ const organizationJsonLd = {
   name: "Cupom Aplicado",
   url: SITE_URL,
   description: SITE_DESCRIPTION,
+  logo: `${SITE_URL}/icon.png`,
 };
 
 export default function RootLayout({

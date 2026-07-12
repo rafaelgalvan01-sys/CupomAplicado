@@ -54,7 +54,7 @@ export function StoreCarousel({ stores }: { stores: Store[] }) {
         ref={scrollRef}
         className="flex gap-5 overflow-x-auto scroll-smooth px-1 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {stores.map((store) => (
+        {stores.map((store, index) => (
           <Link
             key={store.id}
             href={`/loja/${store.slug}`}
@@ -62,7 +62,14 @@ export function StoreCarousel({ stores }: { stores: Store[] }) {
           >
             {store.logo_url ? (
               <span className="relative size-16 overflow-hidden rounded-xl bg-white">
-                <Image src={store.logo_url} alt={store.name} fill sizes="64px" className="object-contain p-2" />
+                <Image
+                  src={store.logo_url}
+                  alt={store.name}
+                  fill
+                  sizes="64px"
+                  priority={index < 4}
+                  className="object-contain p-2"
+                />
               </span>
             ) : (
               <span

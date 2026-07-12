@@ -20,9 +20,21 @@ import {
   AccordionPanel,
 } from "@/components/ui/accordion";
 
+// Loja não depende de searchParams/cookies, então essa página pode ser
+// gerada estaticamente por slug e revalidada em segundo plano — em vez de
+// recalcular tudo a cada requisição.
+export const revalidate = 300;
+
 type Props = {
   params: Promise<{ slug: string }>;
 };
+
+// Meta description: até 155 caracteres, cortando na última palavra inteira
+// (evita truncar no meio de uma palavra no resultado de busca).
+function truncateForMeta(text: string, maxLength = 155): string {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength).replace(/\s+\S*$/, "") + "…";
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -30,9 +42,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!store) return {};
 
   const coupons = await getCouponsByStore(store.id);
-  const description =
-    store.description ??
-    `${coupons.length} cupom${coupons.length === 1 ? "" : "s"} de desconto ativo${coupons.length === 1 ? "" : "s"} para ${store.name}, verificados pela comunidade do Cupom Aplicado.`;
+  const description = store.seo_description?.trim()
+    ? truncateForMeta(store.seo_description.trim())
+    : (store.description ??
+      `${coupons.length} cupom${coupons.length === 1 ? "" : "s"} de desconto ativo${coupons.length === 1 ? "" : "s"} para ${store.name}, verificados pela comunidade do Cupom Aplicado.`);
 
   return {
     title: `Cupons ${store.name} — Cupom Aplicado`,
@@ -42,7 +55,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `Cupons ${store.name}`,
       description,
       url: `${SITE_URL}/loja/${store.slug}`,
-      images: store.logo_url ? [store.logo_url] : undefined,
+      // Sem "images" aqui de propósito: deixa o Next.js usar o
+      // opengraph-image.tsx deste segmento de rota (imagem de marca
+      // 1200x630) em vez da logo crua da loja.
     },
     ...(coupons.length === 0 && { robots: { index: false, follow: true } }),
   };
@@ -141,6 +156,7 @@ export default async function StorePage({ params }: Props) {
             alt={store.name}
             width={64}
             height={64}
+            priority
             className="h-16 w-16 rounded-lg object-contain ring-1 ring-border"
           />
         )}
