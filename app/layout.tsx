@@ -37,6 +37,9 @@ export const metadata: Metadata = {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
+  verification: {
+    google: "M3EbhSwqdG3ejXYxTP7EUrxkt5WvMrvyfmOYKK0yKg0",
+  },
   other: {
     lomadee: "2324685",
   },
