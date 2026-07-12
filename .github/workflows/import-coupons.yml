@@ -2,8 +2,8 @@ name: Importar cupons
 
 on:
   schedule:
-    # 03:00 UTC, 09:00 UTC, 15:00 UTC, 21:00 UTC = 00:00, 06:00, 12:00, 18:00 no horário de Brasília
-    - cron: "0 3,9,15,21 * * *"
+    # A cada 3 horas (8x/dia): 00h, 03h, 06h, 09h, 12h, 15h, 18h, 21h no horário de Brasília
+    - cron: "0 */3 * * *"
   workflow_dispatch:
 
 jobs:
