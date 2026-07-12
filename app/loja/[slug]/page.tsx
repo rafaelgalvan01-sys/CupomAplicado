@@ -13,6 +13,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionPanel,
+} from "@/components/ui/accordion";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -140,7 +146,6 @@ export default async function StorePage({ params }: Props) {
         )}
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">{store.name}</h1>
-          {store.description && <p className="text-muted-foreground">{store.description}</p>}
         </div>
       </section>
 
@@ -173,19 +178,16 @@ export default async function StorePage({ params }: Props) {
       {faq.length > 0 && (
         <section className="flex flex-col gap-3 border-t border-border pt-8">
           <h2 className="text-xl font-semibold text-foreground">Perguntas frequentes</h2>
-          <div className="flex flex-col gap-2">
-            {faq.map((item) => (
-              <details
-                key={item.question}
-                className="group rounded-lg border border-border bg-card px-4 py-3"
-              >
-                <summary className="cursor-pointer list-none font-medium text-foreground marker:content-none">
-                  {item.question}
-                </summary>
-                <p className="mt-2 text-muted-foreground">{item.answer}</p>
-              </details>
+          <Accordion className="rounded-lg border border-border bg-card px-4">
+            {faq.map((item, index) => (
+              <AccordionItem key={item.question} value={index}>
+                <AccordionTrigger>{item.question}</AccordionTrigger>
+                <AccordionPanel>
+                  <p className="text-muted-foreground">{item.answer}</p>
+                </AccordionPanel>
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
         </section>
       )}
     </div>
