@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { JsonLd } from "@/components/JsonLd";
+import { SITE_URL } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,12 +16,38 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_TITLE = "Cupom Aplicado — Cupons de desconto e promoções";
+const SITE_DESCRIPTION =
+  "Encontre os melhores cupons de desconto, promoções e ofertas para suas lojas favoritas. Cupons verificados pela comunidade.";
+
 export const metadata: Metadata = {
-  title: "Cupom Aplicado — Cupons de desconto e promoções",
-  description: "Encontre os melhores cupons de desconto, promoções e ofertas para suas lojas favoritas.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    siteName: "Cupom Aplicado",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
   other: {
     lomadee: "2324685",
   },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Cupom Aplicado",
+  url: SITE_URL,
+  description: SITE_DESCRIPTION,
 };
 
 export default function RootLayout({
@@ -33,6 +61,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
+        <JsonLd data={organizationJsonLd} />
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-brand focus:px-4 focus:py-2 focus:text-white focus:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"

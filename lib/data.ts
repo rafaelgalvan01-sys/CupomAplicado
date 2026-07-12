@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { supabase } from './supabase'
 import type { Category, Store, Coupon, CouponWithStore, SortOption } from './types'
 
@@ -12,7 +13,9 @@ export async function getCategories(): Promise<Category[]> {
   return data
 }
 
-export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+// cache() deduplica a chamada entre generateMetadata e a página em si, que
+// pedem os mesmos dados dentro da mesma requisição.
+export const getCategoryBySlug = cache(async (slug: string): Promise<Category | null> => {
   const { data, error } = await supabase
     .from('categories')
     .select('*')
@@ -20,7 +23,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
     .maybeSingle()
   if (error) throw error
   return data
-}
+})
 
 export async function getStores(): Promise<Store[]> {
   const { data, error } = await supabase
@@ -32,18 +35,22 @@ export async function getStores(): Promise<Store[]> {
   return data
 }
 
-export async function getStoreBySlug(slug: string): Promise<Store | null> {
-  const { data, error } = await supabase
-    .from('stores')
-    .select('*')
-    .eq('slug', slug)
-    .eq('active', true)
-    .maybeSingle()
-  if (error) throw error
-  return data
-}
+export const getStoreBySlug = cache(
+  async (
+    slug: string
+  ): Promise<(Store & { categories: { name: string; slug: string } | null }) | null> => {
+    const { data, error } = await supabase
+      .from('stores')
+      .select('*, categories(name, slug)')
+      .eq('slug', slug)
+      .eq('active', true)
+      .maybeSingle()
+    if (error) throw error
+    return data
+  }
+)
 
-export async function getStoresByCategory(categoryId: string): Promise<Store[]> {
+export const getStoresByCategory = cache(async (categoryId: string): Promise<Store[]> => {
   const { data, error } = await supabase
     .from('stores')
     .select('*')
@@ -52,9 +59,9 @@ export async function getStoresByCategory(categoryId: string): Promise<Store[]> 
     .order('name')
   if (error) throw error
   return data
-}
+})
 
-export async function getCouponsByStore(storeId: string): Promise<Coupon[]> {
+export const getCouponsByStore = cache(async (storeId: string): Promise<Coupon[]> => {
   const { data, error } = await supabase
     .from('coupons')
     .select('*')
@@ -63,7 +70,7 @@ export async function getCouponsByStore(storeId: string): Promise<Coupon[]> {
     .order('created_at', { ascending: false })
   if (error) throw error
   return data
-}
+})
 
 export async function getFeaturedCoupons(limit = 3): Promise<CouponWithStore[]> {
   const { data, error } = await supabase

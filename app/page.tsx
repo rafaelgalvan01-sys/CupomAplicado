@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Star } from "lucide-react";
 import { getFeaturedCoupons, getCouponsSorted, getTopStores, getActiveCouponsCount } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
@@ -7,6 +8,16 @@ import type { CouponWithStore, SortOption } from "@/lib/types";
 type Props = {
   searchParams: Promise<{ q?: string; sort?: string }>;
 };
+
+// Buscas internas não têm conteúdo próprio pra indexar (é a mesma listagem
+// filtrada) — a página "real" pro Google é sempre a home sem parâmetros.
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { q } = await searchParams;
+  return {
+    alternates: { canonical: "/" },
+    ...(q && { robots: { index: false, follow: true } }),
+  };
+}
 
 function toStoreProp(coupon: CouponWithStore) {
   return {

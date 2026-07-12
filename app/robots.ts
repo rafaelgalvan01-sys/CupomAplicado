@@ -6,6 +6,9 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
+      // /ir/ é só um redirecionamento de clique (sem conteúdo próprio) e
+      // /api/ são rotas de dados — nenhum dos dois tem valor de indexação.
+      disallow: ["/ir/", "/api/"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

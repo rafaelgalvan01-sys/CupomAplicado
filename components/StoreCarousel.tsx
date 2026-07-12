@@ -62,7 +62,7 @@ export function StoreCarousel({ stores }: { stores: Store[] }) {
           >
             {store.logo_url ? (
               <span className="relative size-16 overflow-hidden rounded-xl bg-white">
-                <Image src={store.logo_url} alt={store.name} fill className="object-contain p-2" unoptimized />
+                <Image src={store.logo_url} alt={store.name} fill sizes="64px" className="object-contain p-2" />
               </span>
             ) : (
               <span

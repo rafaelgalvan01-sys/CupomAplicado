@@ -48,7 +48,7 @@ export function CouponCard({ coupon, store }: { coupon: Coupon; store: CouponCar
           >
             {store.logo_url ? (
               <span className="relative size-8 shrink-0 overflow-hidden rounded-lg bg-white">
-                <Image src={store.logo_url} alt={store.name} fill className="object-contain p-1" unoptimized />
+                <Image src={store.logo_url} alt={store.name} fill sizes="32px" className="object-contain p-1" />
               </span>
             ) : (
               <span

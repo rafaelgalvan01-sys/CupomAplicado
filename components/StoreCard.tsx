@@ -14,8 +14,8 @@ export function StoreCard({ store }: { store: Store }) {
                 src={store.logo_url}
                 alt={store.name}
                 fill
+                sizes="112px"
                 className="object-contain object-left"
-                unoptimized
               />
             </div>
           )}
