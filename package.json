@@ -6,10 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate-seo-content": "node --env-file=.env.local scripts/generate-seo-content.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
+    "@google/genai": "^2.11.0",
     "@supabase/supabase-js": "^2.110.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

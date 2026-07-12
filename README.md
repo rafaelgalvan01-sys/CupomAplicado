@@ -37,7 +37,27 @@ Abra [http://localhost:3000](http://localhost:3000).
 
 ## Gestão de conteúdo
 
-No momento, lojas e cupons são gerenciados direto pelo **Table Editor** do painel do Supabase (sem tela de admin no site). Edite as tabelas `stores` e `coupons` por lá para adicionar/atualizar/desativar cupons.
+Lojas e cupons são gerenciados direto pelo **Table Editor** do painel do Supabase (sem tela de admin no site) para edições pontuais.
+
+Importação de cupons (Lomadee/Awin) e geração de texto SEO + FAQ por loja (via Gemini, free tier) rodam automaticamente 8x por dia (a cada 3 horas) pelo workflow [`.github/workflows/import-coupons.yml`](./.github/workflows/import-coupons.yml) — também pode ser disparado manualmente na aba **Actions** do repositório no GitHub (`Importar cupons e gerar SEO` → `Run workflow`). O script de SEO só chama a API pra lojas que ainda não têm `seo_description`, então rodar várias vezes ao dia não gera custo extra.
+
+Pra isso funcionar, configure em **Settings → Secrets and variables → Actions** do repositório os secrets:
+
+- `LOMADEE_API_KEY`
+- `AWIN_API_TOKEN`
+- `AWIN_PUBLISHER_ID`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `SUPABASE_SECRET_KEY`
+- `GEMINI_API_KEY`
+
+Rodar manualmente (local), se precisar:
+
+```bash
+node --env-file=.env.local scripts/import-lomadee.mjs
+node --env-file=.env.local scripts/import-awin.mjs
+npm run generate-seo-content        # só lojas sem seo_description
+npm run generate-seo-content -- --force   # regera todas
+```
 
 ## Estrutura
 

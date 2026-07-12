@@ -87,10 +87,24 @@ export default async function StorePage({ params }: Props) {
     })),
   };
 
+  // ?? [] cobre o período entre um deploy e a migração 0003 ser aplicada no
+  // Supabase (a coluna ainda não existe, então store.faq vem undefined).
+  const faq = store.faq ?? [];
+  const faqJsonLd = faq.length > 0 && {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
+
   return (
     <div className="flex flex-col gap-8">
       <JsonLd data={breadcrumbJsonLd} />
       {offersJsonLd && <JsonLd data={offersJsonLd} />}
+      {faqJsonLd && <JsonLd data={faqJsonLd} />}
 
       <Breadcrumb>
         <BreadcrumbList>
@@ -148,6 +162,32 @@ export default async function StorePage({ params }: Props) {
           </div>
         )}
       </section>
+
+      {store.seo_description && (
+        <section className="flex flex-col gap-3 border-t border-border pt-8">
+          <h2 className="text-xl font-semibold text-foreground">Sobre os cupons {store.name}</h2>
+          <p className="whitespace-pre-line text-muted-foreground">{store.seo_description}</p>
+        </section>
+      )}
+
+      {faq.length > 0 && (
+        <section className="flex flex-col gap-3 border-t border-border pt-8">
+          <h2 className="text-xl font-semibold text-foreground">Perguntas frequentes</h2>
+          <div className="flex flex-col gap-2">
+            {faq.map((item) => (
+              <details
+                key={item.question}
+                className="group rounded-lg border border-border bg-card px-4 py-3"
+              >
+                <summary className="cursor-pointer list-none font-medium text-foreground marker:content-none">
+                  {item.question}
+                </summary>
+                <p className="mt-2 text-muted-foreground">{item.answer}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

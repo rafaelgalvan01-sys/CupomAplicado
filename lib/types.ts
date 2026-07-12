@@ -4,6 +4,11 @@ export type Category = {
   slug: string
 }
 
+export type StoreFaqItem = {
+  question: string
+  answer: string
+}
+
 export type Store = {
   id: string
   name: string
@@ -13,6 +18,8 @@ export type Store = {
   category_id: string | null
   affiliate_base_url: string | null
   active: boolean
+  seo_description: string | null
+  faq: StoreFaqItem[]
 }
 
 export type DiscountType = 'percentual' | 'fixo' | 'frete_gratis' | 'outro'
