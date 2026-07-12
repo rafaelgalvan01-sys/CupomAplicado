@@ -1,10 +1,13 @@
 -- Redesign: destaques, votação da comunidade nos cupons.
+-- Todos os comandos abaixo usam "if not exists" / "or replace" para que a
+-- migração possa ser rodada de novo com segurança caso já tenha sido
+-- aplicada parcialmente antes.
 
-alter table coupons add column is_highlight boolean not null default false;
-alter table coupons add column helpful_count integer not null default 0;
-alter table coupons add column not_helpful_count integer not null default 0;
+alter table coupons add column if not exists is_highlight boolean not null default false;
+alter table coupons add column if not exists helpful_count integer not null default 0;
+alter table coupons add column if not exists not_helpful_count integer not null default 0;
 
-create table coupon_votes (
+create table if not exists coupon_votes (
   id uuid primary key default gen_random_uuid(),
   coupon_id uuid not null references coupons(id) on delete cascade,
   voter_id text not null,
@@ -13,7 +16,7 @@ create table coupon_votes (
   unique (coupon_id, voter_id)
 );
 
-create index coupon_votes_coupon_id_idx on coupon_votes(coupon_id);
+create index if not exists coupon_votes_coupon_id_idx on coupon_votes(coupon_id);
 
 alter table coupon_votes enable row level security;
 -- Sem policy de leitura/escrita pública: essa tabela só é tocada pela função
