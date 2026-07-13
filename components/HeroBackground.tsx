@@ -6,9 +6,14 @@ type IconConfig = {
   size: number;
   opacity: number;
   flip?: boolean;
+  fill?: string;
   duration: number;
   delay: number;
 };
+
+// Cor da marca (#1DB761) a 10% de opacidade, usada só no preenchimento dos
+// dois ícones grandes.
+const LARGE_ICON_FILL = "rgba(29, 183, 97, 0.1)";
 
 // Posições/tamanhos fixos (sem Math.random) — decoração atrás do texto do
 // hero. O H1 tem max-w-2xl, então a partir de lg (1024px, quando os ícones
@@ -18,10 +23,10 @@ type IconConfig = {
 // de segurança extra, caso o texto cresça mais que o previsto.
 const ICONS: IconConfig[] = [
   { left: "12%", top: "33%", size: 40, opacity: 0.9, duration: 5, delay: 0 },
-  { left: "5%", top: "58%", size: 100, opacity: 0.95, duration: 6, delay: -1.5 },
+  { left: "5%", top: "58%", size: 100, opacity: 0.95, fill: LARGE_ICON_FILL, duration: 6, delay: -1.5 },
   { left: "11%", top: "80%", size: 42, opacity: 0.85, duration: 4.5, delay: -3 },
   { left: "88%", top: "32%", size: 40, opacity: 0.9, flip: true, duration: 5.5, delay: -2 },
-  { left: "95%", top: "58%", size: 100, opacity: 0.95, flip: true, duration: 6.5, delay: -0.5 },
+  { left: "95%", top: "58%", size: 100, opacity: 0.95, flip: true, fill: LARGE_ICON_FILL, duration: 6.5, delay: -0.5 },
   { left: "89%", top: "77%", size: 42, opacity: 0.85, flip: true, duration: 4.8, delay: -4 },
 ];
 
@@ -38,10 +43,11 @@ export function HeroBackground() {
       }}
     >
       <div className="hero-glow absolute inset-0" />
-      {ICONS.map(({ left, top, size, opacity, flip, duration, delay }, index) => (
+      {ICONS.map(({ left, top, size, opacity, flip, fill, duration, delay }, index) => (
         <TicketPercent
           key={index}
           strokeWidth={1.5}
+          fill={fill ?? "none"}
           className="absolute text-brand"
           style={{
             left,
