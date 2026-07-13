@@ -14,7 +14,7 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 // Página institucional estática, sem searchParams — pode ser gerada uma vez
-// e revalidada em segundo plano (mesmo padrão das páginas de loja/categoria).
+// e revalidada em segundo plano (mesmo padrão da página de loja).
 export const revalidate = 300;
 
 const TITLE = "Sobre o Cupom Aplicado — Cupons de desconto verificados";

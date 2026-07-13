@@ -1,12 +1,12 @@
 import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
-import type { Category, Store, Coupon, CouponWithStore } from './types'
+import type { Store, Coupon, CouponWithStore } from './types'
 
 // !inner garante que cupons de lojas inativas (ou bloqueadas por RLS) somem
 // da lista, em vez de aparecer com "loja" vazia.
 const COUPON_WITH_STORE_SELECT =
-  '*, stores!inner(name, slug, logo_url, description, categories(name))'
+  '*, stores!inner(name, slug, logo_url, description)'
 
 // Janela de revalidação pras leituras cacheadas abaixo. Cupons/lojas não
 // mudam a cada segundo, então não faz sentido bater no Supabase a cada
@@ -15,35 +15,9 @@ const COUPON_WITH_STORE_SELECT =
 // o que por si só já impede cache no nível de rota).
 const REVALIDATE_SECONDS = 300
 
-export const getCategories = unstable_cache(
-  async (): Promise<Category[]> => {
-    const { data, error } = await supabase.from('categories').select('*').order('name')
-    if (error) throw error
-    return data
-  },
-  ['categories'],
-  { revalidate: REVALIDATE_SECONDS }
-)
-
 // cache() deduplica a chamada entre generateMetadata e a página em si, que
 // pedem os mesmos dados dentro da mesma requisição; unstable_cache guarda
 // entre requisições diferentes.
-export const getCategoryBySlug = cache(
-  unstable_cache(
-    async (slug: string): Promise<Category | null> => {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('slug', slug)
-        .maybeSingle()
-      if (error) throw error
-      return data
-    },
-    ['category-by-slug'],
-    { revalidate: REVALIDATE_SECONDS }
-  )
-)
-
 export const getStores = unstable_cache(
   async (): Promise<Store[]> => {
     const { data, error } = await supabase
@@ -60,12 +34,10 @@ export const getStores = unstable_cache(
 
 export const getStoreBySlug = cache(
   unstable_cache(
-    async (
-      slug: string
-    ): Promise<(Store & { categories: { name: string; slug: string } | null }) | null> => {
+    async (slug: string): Promise<Store | null> => {
       const { data, error } = await supabase
         .from('stores')
-        .select('*, categories(name, slug)')
+        .select('*')
         .eq('slug', slug)
         .eq('active', true)
         .maybeSingle()
@@ -73,23 +45,6 @@ export const getStoreBySlug = cache(
       return data
     },
     ['store-by-slug'],
-    { revalidate: REVALIDATE_SECONDS }
-  )
-)
-
-export const getStoresByCategory = cache(
-  unstable_cache(
-    async (categoryId: string): Promise<Store[]> => {
-      const { data, error } = await supabase
-        .from('stores')
-        .select('*')
-        .eq('category_id', categoryId)
-        .eq('active', true)
-        .order('name')
-      if (error) throw error
-      return data
-    },
-    ['stores-by-category'],
     { revalidate: REVALIDATE_SECONDS }
   )
 )

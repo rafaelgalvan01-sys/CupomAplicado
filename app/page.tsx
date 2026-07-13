@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Star, Tag } from "lucide-react";
+import { Star } from "lucide-react";
 import {
   getFeaturedCoupons,
   getCoupons,
   getTopStores,
   getActiveCouponsCount,
-  getCategories,
 } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
 import { StoreCarousel } from "@/components/StoreCarousel";
-import { Badge } from "@/components/ui/badge";
 import { JsonLd } from "@/components/JsonLd";
 import {
   Accordion,
@@ -69,12 +67,11 @@ function toStoreProp(coupon: CouponWithStore) {
 export default async function Home({ searchParams }: Props) {
   const { q } = await searchParams;
 
-  const [featured, coupons, topStores, activeCount, categories] = await Promise.all([
+  const [featured, coupons, topStores, activeCount] = await Promise.all([
     q ? Promise.resolve([]) : getFeaturedCoupons(),
     getCoupons({ query: q }),
     getTopStores(10),
     getActiveCouponsCount(),
-    getCategories(),
   ]);
 
   const websiteJsonLd = {
@@ -121,29 +118,16 @@ export default async function Home({ searchParams }: Props) {
       </section>
 
       <section className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+            Lojas parceiras
+          </h2>
+          <Link href="/lojas" className="text-xs font-medium text-brand-text hover:underline">
+            Ver todas
+          </Link>
+        </div>
         <StoreCarousel stores={topStores} />
       </section>
-
-      {categories.length > 0 && (
-        <section className="flex flex-col gap-4">
-          <h2 className="flex items-center gap-1.5 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-            <Tag className="size-3.5 text-brand-text" />
-            Categorias
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <Badge
-                key={category.id}
-                variant="outline"
-                className="h-auto rounded-lg px-3.5 py-2 text-sm font-medium"
-                render={<Link href={`/categoria/${category.slug}`} />}
-              >
-                {category.name}
-              </Badge>
-            ))}
-          </div>
-        </section>
-      )}
 
       {featured.length > 0 && (
         <section className="flex flex-col gap-4">

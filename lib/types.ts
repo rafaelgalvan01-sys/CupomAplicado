@@ -1,9 +1,3 @@
-export type Category = {
-  id: string
-  name: string
-  slug: string
-}
-
 export type StoreFaqItem = {
   question: string
   answer: string
@@ -47,6 +41,5 @@ export type CouponWithStore = Coupon & {
     slug: string
     logo_url: string | null
     description: string | null
-    categories: { name: string } | null
   } | null
 }

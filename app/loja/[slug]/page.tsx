@@ -80,19 +80,9 @@ export default async function StorePage({ params }: Props) {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Início", item: SITE_URL },
-      ...(store.categories
-        ? [
-            {
-              "@type": "ListItem",
-              position: 2,
-              name: store.categories.name,
-              item: `${SITE_URL}/categoria/${store.categories.slug}`,
-            },
-          ]
-        : []),
       {
         "@type": "ListItem",
-        position: store.categories ? 3 : 2,
+        position: 2,
         name: store.name,
         item: `${SITE_URL}/loja/${store.slug}`,
       },
@@ -137,16 +127,6 @@ export default async function StorePage({ params }: Props) {
           <BreadcrumbItem>
             <BreadcrumbLink href="/">Início</BreadcrumbLink>
           </BreadcrumbItem>
-          {store.categories && (
-            <>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink href={`/categoria/${store.categories.slug}`}>
-                  {store.categories.name}
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-            </>
-          )}
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbPage>{store.name}</BreadcrumbPage>
