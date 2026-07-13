@@ -107,7 +107,7 @@ export default async function Home({ searchParams }: Props) {
       <JsonLd data={websiteJsonLd} />
       <JsonLd data={faqJsonLd} />
 
-      <section className="relative -mt-8 flex flex-col items-center gap-3 overflow-hidden pt-14 pb-6 text-center sm:pt-18 sm:pb-10">
+      <section className="relative isolate flex flex-col items-center gap-3 overflow-hidden py-6 text-center sm:py-10">
         <HeroBackground />
         <div className="relative z-10 flex flex-col items-center gap-3">
           <Image src={iconMark} alt="" width={48} height={48} className="hero-logo-mark mb-1" priority />
@@ -118,7 +118,7 @@ export default async function Home({ searchParams }: Props) {
             </span>
             {activeCount} {activeCount === 1 ? "cupom ativo hoje" : "cupons ativos hoje"}
           </span>
-          <h1 className="text-4xl tracking-tight text-foreground sm:text-5xl">
+          <h1 className="max-w-2xl text-4xl tracking-tight text-foreground sm:text-5xl">
             <span className="block font-semibold">Cupons de desconto</span>
             <span className="block font-light text-brand-text">para economizar em cada compra</span>
           </h1>
