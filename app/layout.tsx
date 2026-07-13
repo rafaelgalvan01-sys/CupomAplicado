@@ -42,6 +42,7 @@ export const metadata: Metadata = {
   },
   other: {
     lomadee: "2324685",
+    "verify-admitad": "f96788da97",
   },
 };
 
