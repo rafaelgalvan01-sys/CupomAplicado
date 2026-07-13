@@ -158,15 +158,3 @@
     scroll-behavior: auto !important;
   }
 }
-
-/* Ícones de desconto caindo no fundo do hero (HeroBackground.tsx). Só
-   transform — nada de top/left — pra ficar acelerado por GPU e não
-   disparar reflow. Some sozinho sob prefers-reduced-motion (regra acima). */
-@keyframes hero-icon-fall {
-  from {
-    transform: translateY(-15%) rotate(var(--icon-rotate, 0deg));
-  }
-  to {
-    transform: translateY(115%) rotate(var(--icon-rotate, 0deg));
-  }
-}
