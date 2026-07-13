@@ -115,12 +115,14 @@ export default async function Home({ searchParams }: Props) {
             <span className="size-1.5 rounded-full bg-brand" />
             {activeCount} {activeCount === 1 ? "cupom ativo hoje" : "cupons ativos hoje"}
           </span>
-          <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-            <span className="block">Cupons de desconto</span>
-            <span className="block text-brand-text">para economizar em cada compra</span>
+          <h1 className="text-4xl tracking-tight text-foreground sm:text-5xl">
+            <span className="block font-semibold">Cupons de desconto</span>
+            <span className="block font-light text-brand-text">para economizar em cada compra</span>
           </h1>
           <p className="max-w-xl text-lg text-muted-foreground">
-            Verificados pela comunidade. Vote se funcionou para ajudar outros usuários.
+            Verificados pela comunidade.
+            <br />
+            Vote se funcionou para ajudar outros usuários.
           </p>
         </div>
       </section>
