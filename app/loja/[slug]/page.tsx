@@ -5,6 +5,7 @@ import { getStoreBySlug, getCouponsByStore, getStores } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
 import { JsonLd } from "@/components/JsonLd";
 import { SITE_URL } from "@/lib/site";
+import { truncateText } from "@/lib/utils";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -34,13 +35,6 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-// Meta description: até 155 caracteres, cortando na última palavra inteira
-// (evita truncar no meio de uma palavra no resultado de busca).
-function truncateForMeta(text: string, maxLength = 155): string {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength).replace(/\s+\S*$/, "") + "…";
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const store = await getStoreBySlug(slug);
@@ -48,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const coupons = await getCouponsByStore(store.id);
   const description = store.seo_description?.trim()
-    ? truncateForMeta(store.seo_description.trim())
+    ? truncateText(store.seo_description.trim(), 155)
     : (store.description ??
       `${coupons.length} cupom${coupons.length === 1 ? "" : "s"} de desconto ativo${coupons.length === 1 ? "" : "s"} para ${store.name}, verificados pela comunidade do Cupom Aplicado.`);
 
