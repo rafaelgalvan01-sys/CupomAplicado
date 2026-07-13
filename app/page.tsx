@@ -11,7 +11,38 @@ import {
 import { CouponCard } from "@/components/CouponCard";
 import { StoreCarousel } from "@/components/StoreCarousel";
 import { Badge } from "@/components/ui/badge";
+import { JsonLd } from "@/components/JsonLd";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionPanel,
+} from "@/components/ui/accordion";
+import { SITE_URL } from "@/lib/site";
 import type { CouponWithStore } from "@/lib/types";
+
+const HOME_FAQ = [
+  {
+    question: "Como funciona o Cupom Aplicado?",
+    answer:
+      "Reunimos cupons de desconto de várias lojas parceiras num só lugar. Você escolhe o cupom, copia o código e é redirecionado direto pro site da loja pra finalizar a compra com o desconto aplicado.",
+  },
+  {
+    question: "Os cupons de desconto são verificados?",
+    answer:
+      "Sim. Cada cupom tem um indicador \"Funciona?\" baseado nos votos da própria comunidade — quem usa o cupom confirma se o desconto foi aplicado ou não, ajudando outros usuários a escolher com mais segurança.",
+  },
+  {
+    question: "É grátis usar o Cupom Aplicado?",
+    answer:
+      "Sim, o uso é sempre gratuito e não exige cadastro. Ganhamos uma pequena comissão das lojas parceiras quando um cupom é usado, sem nenhum custo extra pra você.",
+  },
+  {
+    question: "Como eu aplico um cupom de desconto?",
+    answer:
+      "Clique em \"Copiar\" no cupom desejado — o código vai pra sua área de transferência e você é levado direto pro site da loja. Na finalização da compra, cole o código no campo de cupom antes de fechar o pedido.",
+  },
+];
 
 type Props = {
   searchParams: Promise<{ q?: string }>;
@@ -46,18 +77,46 @@ export default async function Home({ searchParams }: Props) {
     getCategories(),
   ]);
 
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Cupom Aplicado",
+    url: SITE_URL,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${SITE_URL}/?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: HOME_FAQ.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
+
   return (
     <div className="flex flex-col gap-14">
+      <JsonLd data={websiteJsonLd} />
+      <JsonLd data={faqJsonLd} />
+
       <section className="flex flex-col items-center gap-3 py-6 text-center">
         <span className="flex items-center gap-2 rounded-full bg-brand/15 px-3 py-1 text-xs font-medium text-brand-text">
           <span className="size-1.5 rounded-full bg-brand" />
           {activeCount} {activeCount === 1 ? "cupom ativo hoje" : "cupons ativos hoje"}
         </span>
         <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-          Economize em cada compra
+          Cupons de desconto para economizar em cada compra
         </h1>
         <p className="max-w-xl text-lg text-muted-foreground">
-          Cupons verificados pela comunidade. Vote se funcionou para ajudar outros usuários.
+          Verificados pela comunidade. Vote se funcionou para ajudar outros usuários.
         </p>
       </section>
 
@@ -123,6 +182,20 @@ export default async function Home({ searchParams }: Props) {
             ))}
           </div>
         )}
+      </section>
+
+      <section className="flex flex-col gap-3 border-t border-border pt-8">
+        <h2 className="text-xl font-semibold text-foreground">Perguntas frequentes</h2>
+        <Accordion className="rounded-lg border border-border bg-card px-4">
+          {HOME_FAQ.map((item, index) => (
+            <AccordionItem key={item.question} value={index}>
+              <AccordionTrigger>{item.question}</AccordionTrigger>
+              <AccordionPanel>
+                <p className="text-muted-foreground">{item.answer}</p>
+              </AccordionPanel>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </section>
     </div>
   );
