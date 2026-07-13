@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 type Params = {
@@ -19,7 +19,10 @@ export async function GET(request: NextRequest, { params }: Params) {
     return NextResponse.redirect(new URL("/", request.url), 302);
   }
 
-  await supabase.rpc("increment_coupon_clicks", { coupon_id: couponId });
+  // Roda depois do redirecionamento já ter sido enviado: contar o clique é
+  // best-effort e não pode atrasar (nem, em caso de falha, impedir) o
+  // usuário de chegar na oferta.
+  after(() => supabase.rpc("increment_coupon_clicks", { coupon_id: couponId }));
 
   return NextResponse.redirect(coupon.affiliate_url, 302);
 }
