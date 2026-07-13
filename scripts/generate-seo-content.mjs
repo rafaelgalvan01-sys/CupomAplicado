@@ -16,6 +16,13 @@ if (!GEMINI_API_KEY || !SUPABASE_URL || !SUPABASE_SECRET_KEY) {
 const FORCE = process.argv.includes("--force");
 const MODEL = "gemini-3.5-flash"; // free tier
 
+// O free tier desse modelo permite só 5 requisições por minuto (confirmado
+// via erro 429 real da API — o comentário antigo aqui assumia um limite bem
+// maior). 13s de intervalo mantém ritmo de ~4,6/min, com margem de segurança.
+const REQUEST_INTERVAL_MS = 13000;
+const MAX_ATTEMPTS_ON_RATE_LIMIT = 3;
+const RATE_LIMIT_BACKOFF_MS = 20000;
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
@@ -75,25 +82,35 @@ async function fetchActiveCouponTitles(storeId) {
   return (data ?? []).map((c) => c.title);
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function generateForStore(store) {
   const couponTitles = await fetchActiveCouponTitles(store.id);
   const prompt = buildPrompt(store, couponTitles);
 
-  const interaction = await ai.interactions.create({
-    model: MODEL,
-    input: prompt,
-    response_format: {
-      type: "text",
-      mime_type: "application/json",
-      schema: RESPONSE_SCHEMA,
-    },
-  });
-
-  return JSON.parse(interaction.output_text);
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS_ON_RATE_LIMIT; attempt++) {
+    try {
+      const interaction = await ai.interactions.create({
+        model: MODEL,
+        input: prompt,
+        response_format: {
+          type: "text",
+          mime_type: "application/json",
+          schema: RESPONSE_SCHEMA,
+        },
+      });
+      return JSON.parse(interaction.output_text);
+    } catch (err) {
+      const isRateLimit = err?.status === 429;
+      if (!isRateLimit || attempt === MAX_ATTEMPTS_ON_RATE_LIMIT) throw err;
+      console.log(
+        `  Cota excedida, tentativa ${attempt}/${MAX_ATTEMPTS_ON_RATE_LIMIT} — aguardando ${RATE_LIMIT_BACKOFF_MS / 1000}s...`
+      );
+      await sleep(RATE_LIMIT_BACKOFF_MS);
+    }
+  }
 }
 
 async function main() {
@@ -137,8 +154,7 @@ async function main() {
       console.error(`Erro ao gerar conteúdo para ${store.name}:`, err.message ?? err);
     }
 
-    // Free tier tem limite de requisições por minuto — espaça as chamadas.
-    await sleep(4000);
+    await sleep(REQUEST_INTERVAL_MS);
   }
 
   console.log(`Pronto! ${done} loja(s) atualizadas, ${failed} falha(s).`);

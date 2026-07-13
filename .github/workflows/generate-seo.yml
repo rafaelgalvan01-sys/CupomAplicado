@@ -1,0 +1,29 @@
+name: Gerar SEO e FAQ das lojas
+
+on:
+  schedule:
+    # 2x/dia (a cada 12h): 06h e 18h no horário de Brasília — separado da
+    # importação de cupons (que roda 8x/dia) pra não gastar a cota diária
+    # do Gemini à toa em execuções onde não há loja nova pra processar.
+    - cron: "0 9,21 * * *"
+  workflow_dispatch:
+
+jobs:
+  generate-seo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Gerar SEO + FAQ para lojas novas
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: node scripts/generate-seo-content.mjs
