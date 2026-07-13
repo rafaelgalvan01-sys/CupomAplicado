@@ -158,3 +158,15 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Marca-d'água do hero da home (HeroBackground.tsx): brilho radial suave e
+   o ícone da marca invertido pra branco — só faz sentido no tema escuro,
+   onde o fundo é escuro o bastante pra um brilho/ícone claro se destacar. */
+@media (prefers-color-scheme: dark) {
+  .hero-glow {
+    background: radial-gradient(ellipse 55% 70% at 50% 20%, rgba(29, 183, 97, 0.18), transparent 70%);
+  }
+  .hero-logo-mark {
+    filter: brightness(0) invert(1);
+  }
+}

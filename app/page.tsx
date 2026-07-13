@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import {
@@ -9,7 +10,9 @@ import {
 } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
 import { StoreCarousel } from "@/components/StoreCarousel";
+import { HeroBackground } from "@/components/HeroBackground";
 import { JsonLd } from "@/components/JsonLd";
+import iconMark from "@/app/icon.png";
 import {
   Accordion,
   AccordionItem,
@@ -104,17 +107,22 @@ export default async function Home({ searchParams }: Props) {
       <JsonLd data={websiteJsonLd} />
       <JsonLd data={faqJsonLd} />
 
-      <section className="flex flex-col items-center gap-3 py-6 text-center">
-        <span className="flex items-center gap-2 rounded-full bg-brand/15 px-3 py-1 text-xs font-medium text-brand-text">
-          <span className="size-1.5 rounded-full bg-brand" />
-          {activeCount} {activeCount === 1 ? "cupom ativo hoje" : "cupons ativos hoje"}
-        </span>
-        <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-          Cupons de desconto para economizar em cada compra
-        </h1>
-        <p className="max-w-xl text-lg text-muted-foreground">
-          Verificados pela comunidade. Vote se funcionou para ajudar outros usuários.
-        </p>
+      <section className="relative flex flex-col items-center gap-3 overflow-hidden py-6 text-center sm:py-10">
+        <HeroBackground />
+        <div className="relative z-10 flex flex-col items-center gap-3">
+          <Image src={iconMark} alt="" width={48} height={48} className="hero-logo-mark mb-1" priority />
+          <span className="flex items-center gap-2 rounded-full bg-brand/15 px-3 py-1 text-xs font-medium text-brand-text">
+            <span className="size-1.5 rounded-full bg-brand" />
+            {activeCount} {activeCount === 1 ? "cupom ativo hoje" : "cupons ativos hoje"}
+          </span>
+          <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+            <span className="block">Cupons de desconto</span>
+            <span className="block text-brand-text">para economizar em cada compra</span>
+          </h1>
+          <p className="max-w-xl text-lg text-muted-foreground">
+            Verificados pela comunidade. Vote se funcionou para ajudar outros usuários.
+          </p>
+        </div>
       </section>
 
       <section className="flex flex-col gap-4">
