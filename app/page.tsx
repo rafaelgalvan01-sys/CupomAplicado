@@ -111,7 +111,7 @@ export default async function Home({ searchParams }: Props) {
         <HeroBackground />
         <div className="relative z-10 flex flex-col items-center gap-3">
           <Image src={iconMark} alt="" width={48} height={48} className="hero-logo-mark mb-1" priority />
-          <span className="flex items-center gap-2 rounded-full bg-brand/15 px-3 py-1 text-xs font-medium text-brand-text">
+          <span className="flex items-center gap-2 rounded-full border border-brand/22 bg-brand/15 px-3 py-1 text-xs font-medium text-brand-text">
             <span className="size-1.5 rounded-full bg-brand" />
             {activeCount} {activeCount === 1 ? "cupom ativo hoje" : "cupons ativos hoje"}
           </span>
