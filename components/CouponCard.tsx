@@ -35,6 +35,18 @@ function displayTitle(coupon: Coupon) {
   return `Aproveite ${formatDiscount(coupon)} nesta loja.`;
 }
 
+function isDuplicateDescription(title: string, originalTitle: string, description: string | null): boolean {
+  if (!description) return false;
+  const normalize = (str: string) =>
+    str
+      .trim()
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]/gu, "");
+  const normDesc = normalize(description);
+  return normDesc === normalize(title) || normDesc === normalize(originalTitle);
+}
+
+
 export function CouponCard({
   coupon,
   store,
@@ -90,7 +102,7 @@ export function CouponCard({
         )}
 
         <TruncatedText text={displayTitle(coupon)} className="mt-1 text-sm text-description-foreground" />
-        {coupon.description && (
+        {coupon.description && !isDuplicateDescription(displayTitle(coupon), coupon.title, coupon.description) && (
           <TruncatedText text={coupon.description} className="text-sm text-description-foreground" />
         )}
       </CardHeader>
