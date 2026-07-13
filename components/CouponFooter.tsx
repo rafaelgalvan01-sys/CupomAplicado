@@ -40,18 +40,19 @@ export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expi
 
   async function vote(isHelpful: boolean) {
     if (loading) return;
+    const isUndo = voted === (isHelpful ? "up" : "down");
     setLoading(true);
     try {
       const res = await fetch("/api/vote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ couponId, isHelpful }),
+        body: JSON.stringify({ couponId, isHelpful: isUndo ? null : isHelpful }),
       });
       if (res.ok) {
         const data = await res.json();
         setHelpful(data.helpful_count);
         setNotHelpful(data.not_helpful_count);
-        setVoted(isHelpful ? "up" : "down");
+        setVoted(isUndo ? null : isHelpful ? "up" : "down");
       }
     } finally {
       setLoading(false);

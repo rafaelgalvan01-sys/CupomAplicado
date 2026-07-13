@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   const couponId = body?.couponId;
   const isHelpful = body?.isHelpful;
 
-  if (typeof couponId !== "string" || typeof isHelpful !== "boolean") {
+  if (typeof couponId !== "string" || (typeof isHelpful !== "boolean" && isHelpful !== null)) {
     return NextResponse.json({ error: "Parâmetros inválidos." }, { status: 400 });
   }
 
@@ -25,13 +25,17 @@ export async function POST(request: Request) {
     });
   }
 
-  const { data, error } = await supabase
-    .rpc("cast_coupon_vote", {
-      p_coupon_id: couponId,
-      p_voter_id: voterId,
-      p_is_helpful: isHelpful,
-    })
-    .single();
+  // isHelpful === null significa "desfazer o voto" (clicou de novo no botão já ativo).
+  const { data, error } =
+    isHelpful === null
+      ? await supabase.rpc("remove_coupon_vote", { p_coupon_id: couponId, p_voter_id: voterId }).single()
+      : await supabase
+          .rpc("cast_coupon_vote", {
+            p_coupon_id: couponId,
+            p_voter_id: voterId,
+            p_is_helpful: isHelpful,
+          })
+          .single();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
