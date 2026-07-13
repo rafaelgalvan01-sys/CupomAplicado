@@ -112,7 +112,10 @@ export default async function Home({ searchParams }: Props) {
         <div className="relative z-10 flex flex-col items-center gap-3">
           <Image src={iconMark} alt="" width={48} height={48} className="hero-logo-mark mb-1" priority />
           <span className="flex items-center gap-2 rounded-full border border-brand/22 bg-brand/15 px-3 py-1 text-xs font-medium text-brand-text">
-            <span className="size-1.5 rounded-full bg-brand" />
+            <span className="relative flex size-1.5">
+              <span className="absolute inset-0 rounded-full bg-brand" style={{ animation: "badge-dot-pulse 2.5s ease-out infinite" }} />
+              <span className="relative size-1.5 rounded-full bg-brand" />
+            </span>
             {activeCount} {activeCount === 1 ? "cupom ativo hoje" : "cupons ativos hoje"}
           </span>
           <h1 className="text-4xl tracking-tight text-foreground sm:text-5xl">

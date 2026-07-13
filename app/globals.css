@@ -170,3 +170,30 @@
     filter: brightness(0) invert(1);
   }
 }
+
+/* Flutuação leve dos ícones de cupom do hero — --icon-flip espelha a
+   diagonal do ícone (lado direito) sem brigar com a própria animação,
+   já que os dois ficam na mesma keyframe. */
+@keyframes hero-icon-float {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scaleX(var(--icon-flip, 1)) translateY(0);
+  }
+  50% {
+    transform: translate(-50%, -50%) scaleX(var(--icon-flip, 1)) translateY(-8px);
+  }
+}
+
+/* Pulso leve no ponto verde da badge "cupons ativos hoje" — um anel que
+   expande e desaparece atrás do ponto sólido, como um indicador "ao vivo". */
+@keyframes badge-dot-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  70%,
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
