@@ -53,7 +53,7 @@ async function fetchVoucherPromotions() {
         filters: {
           membership: "joined",
           status: "active",
-          type: "all",
+          type: "voucher",
         },
         pagination: { page, pageSize: 200 },
       }),
@@ -140,6 +140,9 @@ async function main() {
   for (const promo of promotions) {
     const storeId = storeIdByAdvertiserId.get(promo.advertiser?.id);
     if (!storeId) continue;
+
+    const code = promo.voucher?.code?.trim();
+    if (!code) continue;
 
     const affiliateUrl = promo.urlTracking ?? promo.url;
     if (!affiliateUrl) continue;
