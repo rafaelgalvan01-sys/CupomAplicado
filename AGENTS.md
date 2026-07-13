@@ -23,10 +23,11 @@ Regras fixas, resultado da auditoria de SEO de jul/2026. Aplicar em qualquer pá
 - Description de página (`generateMetadata`) sempre prioriza o texto mais rico disponível (ex: `seo_description` gerado por IA) antes de qualquer fallback genérico. Truncar em ~155 caracteres cortando na palavra inteira, nunca no meio.
 - Nenhuma entidade com nome/marca própria (loja, e futuramente categoria) usa imagem externa crua (logo de CDN de terceiro) como `og:image`. Sempre um `opengraph-image.tsx` próprio do segmento de rota.
 - Todo filtro de indexabilidade aplicado numa página (`robots: {index:false}`) precisa do espelho exato em `app/sitemap.ts` — nunca listar no sitemap uma URL que a própria página marca `noindex`.
+- **Todo texto exibido pro usuário (descrições, resumos, blurbs de card) precisa ser produzido por nós e otimizado em SEO — nunca um campo cru vindo de fonte externa/importação** (ex: `store.description` da API da Lomadee, tipo "Cupons de retail"). Se o conteúdo otimizado (`seo_description`/`faq`, gerado pelo `scripts/generate-seo-content.mjs` via Gemini) ainda não existe pra aquela entidade, prefira não mostrar nada a mostrar o campo cru. Regra descoberta jul/2026 ao notar que o card de loja em `/lojas` estava exibindo a description bruta da Lomadee.
 
 ## Navegação interna
 
-- Toda entidade listável que ganha sua própria rota (loja, categoria, o que vier depois) precisa de pelo menos um caminho de navegação a partir da home ou do header — nunca depender só do sitemap pra ser descoberta.
+- Toda entidade listável que ganha sua própria rota (loja, o que vier depois) precisa de pelo menos um caminho de navegação a partir da home ou do header — nunca depender só do sitemap pra ser descoberta.
 
 ## Componentes (shadcn/Base UI)
 
