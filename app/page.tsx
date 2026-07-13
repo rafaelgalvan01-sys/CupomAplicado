@@ -107,7 +107,7 @@ export default async function Home({ searchParams }: Props) {
       <JsonLd data={websiteJsonLd} />
       <JsonLd data={faqJsonLd} />
 
-      <section className="relative flex flex-col items-center gap-3 overflow-hidden py-6 text-center sm:py-10">
+      <section className="relative -mt-8 flex flex-col items-center gap-3 overflow-hidden pt-14 pb-6 text-center sm:pt-18 sm:pb-10">
         <HeroBackground />
         <div className="relative z-10 flex flex-col items-center gap-3">
           <Image src={iconMark} alt="" width={48} height={48} className="hero-logo-mark mb-1" priority />
