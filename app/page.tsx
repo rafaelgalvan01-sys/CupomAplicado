@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Star, Tag } from "lucide-react";
 import {
   getFeaturedCoupons,
-  getCouponsSorted,
+  getCoupons,
   getTopStores,
   getActiveCouponsCount,
   getCategories,
@@ -11,10 +11,10 @@ import {
 import { CouponCard } from "@/components/CouponCard";
 import { StoreCarousel } from "@/components/StoreCarousel";
 import { Badge } from "@/components/ui/badge";
-import type { CouponWithStore, SortOption } from "@/lib/types";
+import type { CouponWithStore } from "@/lib/types";
 
 type Props = {
-  searchParams: Promise<{ q?: string; sort?: string }>;
+  searchParams: Promise<{ q?: string }>;
 };
 
 // Buscas internas não têm conteúdo próprio pra indexar (é a mesma listagem
@@ -35,15 +35,12 @@ function toStoreProp(coupon: CouponWithStore) {
   };
 }
 
-const VALID_SORTS: SortOption[] = ["novos", "populares", "expirando"];
-
 export default async function Home({ searchParams }: Props) {
-  const { q, sort } = await searchParams;
-  const sortOption = VALID_SORTS.includes(sort as SortOption) ? (sort as SortOption) : "novos";
+  const { q } = await searchParams;
 
   const [featured, coupons, topStores, activeCount, categories] = await Promise.all([
     q ? Promise.resolve([]) : getFeaturedCoupons(),
-    getCouponsSorted({ sort: sortOption, query: q }),
+    getCoupons({ query: q }),
     getTopStores(10),
     getActiveCouponsCount(),
     getCategories(),

@@ -1,7 +1,7 @@
 import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
-import type { Category, Store, Coupon, CouponWithStore, SortOption } from './types'
+import type { Category, Store, Coupon, CouponWithStore } from './types'
 
 // !inner garante que cupons de lojas inativas (ou bloqueadas por RLS) somem
 // da lista, em vez de aparecer com "loja" vazia.
@@ -127,57 +127,43 @@ export const getFeaturedCoupons = unstable_cache(
   { revalidate: REVALIDATE_SECONDS }
 )
 
-// A listagem "padrão" (sem busca) é cacheável por sort. Busca por termo
-// livre fica de fora: geraria uma entrada de cache por termo digitado, sem
-// ganho real, já que o usuário espera um resultado fresco na hora.
-const getCouponsSortedCached = unstable_cache(
-  async (sort: SortOption, limit: number): Promise<CouponWithStore[]> => {
-    let request = supabase.from('coupons').select(COUPON_WITH_STORE_SELECT).eq('active', true)
-
-    if (sort === 'populares') {
-      request = request.order('clicks', { ascending: false })
-    } else if (sort === 'expirando') {
-      request = request.not('expires_at', 'is', null).order('expires_at', { ascending: true })
-    } else {
-      request = request.order('created_at', { ascending: false })
-    }
-
-    const { data, error } = await request.limit(limit)
+// Listagem padrão (sem busca), sempre por mais recente — cacheável. Busca
+// por termo livre fica de fora do cache: geraria uma entrada por termo
+// digitado, sem ganho real, já que o usuário espera um resultado fresco.
+const getCouponsCached = unstable_cache(
+  async (limit: number): Promise<CouponWithStore[]> => {
+    const { data, error } = await supabase
+      .from('coupons')
+      .select(COUPON_WITH_STORE_SELECT)
+      .eq('active', true)
+      .order('created_at', { ascending: false })
+      .limit(limit)
     if (error) throw error
     return data as unknown as CouponWithStore[]
   },
-  ['coupons-sorted'],
+  ['coupons'],
   { revalidate: REVALIDATE_SECONDS }
 )
 
-export async function getCouponsSorted(options: {
-  sort?: SortOption
-  query?: string
-  limit?: number
-}): Promise<CouponWithStore[]> {
-  const { sort = 'novos', query, limit = 60 } = options
+export async function getCoupons(options: { query?: string; limit?: number }): Promise<CouponWithStore[]> {
+  const { query, limit = 60 } = options
   const term = query?.trim().replace(/[,()%]/g, '')
 
-  if (!term) return getCouponsSortedCached(sort, limit)
-
-  let request = supabase.from('coupons').select(COUPON_WITH_STORE_SELECT).eq('active', true)
+  if (!term) return getCouponsCached(limit)
 
   const { data: matchingStores } = await supabase.from('stores').select('id').ilike('name', `%${term}%`)
   const storeIds = (matchingStores ?? []).map((s) => s.id)
 
   const orParts = [`title.ilike.%${term}%`]
   if (storeIds.length > 0) orParts.push(`store_id.in.(${storeIds.join(',')})`)
-  request = request.or(orParts.join(','))
 
-  if (sort === 'populares') {
-    request = request.order('clicks', { ascending: false })
-  } else if (sort === 'expirando') {
-    request = request.not('expires_at', 'is', null).order('expires_at', { ascending: true })
-  } else {
-    request = request.order('created_at', { ascending: false })
-  }
-
-  const { data, error } = await request.limit(limit)
+  const { data, error } = await supabase
+    .from('coupons')
+    .select(COUPON_WITH_STORE_SELECT)
+    .eq('active', true)
+    .or(orParts.join(','))
+    .order('created_at', { ascending: false })
+    .limit(limit)
   if (error) throw error
   return data as unknown as CouponWithStore[]
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getCategoryBySlug, getStoresByCategory } from "@/lib/data";
+import { getCategoryBySlug, getStoresByCategory, getCategories } from "@/lib/data";
 import { StoreCard } from "@/components/StoreCard";
 import { JsonLd } from "@/components/JsonLd";
 import { SITE_URL } from "@/lib/site";
@@ -16,6 +16,11 @@ import {
 // Não depende de searchParams/cookies — pode ser gerada estaticamente por
 // slug e revalidada em segundo plano.
 export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const categories = await getCategories();
+  return categories.map((category) => ({ slug: category.slug }));
+}
 
 type Props = {
   params: Promise<{ slug: string }>;

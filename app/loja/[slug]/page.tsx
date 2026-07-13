@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getStoreBySlug, getCouponsByStore } from "@/lib/data";
+import { getStoreBySlug, getCouponsByStore, getStores } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
 import { JsonLd } from "@/components/JsonLd";
 import { SITE_URL } from "@/lib/site";
@@ -24,6 +24,11 @@ import {
 // gerada estaticamente por slug e revalidada em segundo plano — em vez de
 // recalcular tudo a cada requisição.
 export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const stores = await getStores();
+  return stores.map((store) => ({ slug: store.slug }));
+}
 
 type Props = {
   params: Promise<{ slug: string }>;

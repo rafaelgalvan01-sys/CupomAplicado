@@ -50,5 +50,3 @@ export type CouponWithStore = Coupon & {
     categories: { name: string } | null
   } | null
 }
-
-export type SortOption = 'novos' | 'populares' | 'expirando'
