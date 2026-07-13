@@ -9,6 +9,7 @@ import {
 } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
 import { StoreCarousel } from "@/components/StoreCarousel";
+import { HeroBackground } from "@/components/HeroBackground";
 import { JsonLd } from "@/components/JsonLd";
 import {
   Accordion,
@@ -104,17 +105,20 @@ export default async function Home({ searchParams }: Props) {
       <JsonLd data={websiteJsonLd} />
       <JsonLd data={faqJsonLd} />
 
-      <section className="flex flex-col items-center gap-3 py-6 text-center">
-        <span className="flex items-center gap-2 rounded-full bg-brand/15 px-3 py-1 text-xs font-medium text-brand-text">
-          <span className="size-1.5 rounded-full bg-brand" />
-          {activeCount} {activeCount === 1 ? "cupom ativo hoje" : "cupons ativos hoje"}
-        </span>
-        <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-          Cupons de desconto para economizar em cada compra
-        </h1>
-        <p className="max-w-xl text-lg text-muted-foreground">
-          Verificados pela comunidade. Vote se funcionou para ajudar outros usuários.
-        </p>
+      <section className="relative flex min-h-[300px] flex-col items-center justify-center gap-3 overflow-hidden py-6 text-center sm:min-h-[360px]">
+        <HeroBackground />
+        <div className="relative z-10 flex flex-col items-center gap-3">
+          <span className="flex items-center gap-2 rounded-full bg-brand/15 px-3 py-1 text-xs font-medium text-brand-text">
+            <span className="size-1.5 rounded-full bg-brand" />
+            {activeCount} {activeCount === 1 ? "cupom ativo hoje" : "cupons ativos hoje"}
+          </span>
+          <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+            Cupons de desconto para economizar em cada compra
+          </h1>
+          <p className="max-w-xl text-lg text-muted-foreground">
+            Verificados pela comunidade. Vote se funcionou para ajudar outros usuários.
+          </p>
+        </div>
       </section>
 
       <section className="flex flex-col gap-4">
