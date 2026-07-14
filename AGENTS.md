@@ -44,6 +44,13 @@ Regras fixas, resultado da auditoria de SEO de jul/2026. Aplicar em qualquer pá
 
 ## Efeitos visuais sutis (glow, gradientes, opacidade)
 
-- **Checagem estrutural (`getBoundingClientRect`, `getComputedStyle`) confirma que um efeito está posicionado certo, mas não confirma que ele é visível o suficiente pro olho humano.** Um `radial-gradient`/`opacity` pode passar em todas as checagens de DOM (posição, background-image aplicado) e ainda assim parecer "sem efeito nenhum" numa captura de tela real, porque a intensidade nos pontos que importam (ex: bem na borda de um elemento) ficou baixa demais.
-- Ao mexer no `.hero-glow` (`app/globals.css`) ou em qualquer efeito parecido: calcule manualmente (ou confirme com screenshot) a opacidade resultante exatamente no ponto crítico (aqui, a costura com o header, y=0% do container), não só confie que "o gradiente existe".
-- Configuração atual do `.hero-glow`, testada e com opacidade de ~0.32 (quase o pico do gradiente) bem na costura com o header: `radial-gradient(ellipse 60% 65% at 50% 5%, rgba(29, 183, 97, 0.32), transparent 75%)`. Não trocar o centro de volta pra baixo (tipo `at 50% 20%`) sem recalcular — foi exatamente isso que deixou a faixa perto do header parecendo apagada da primeira vez (jul/2026).
+- **Checagem estrutural (`getBoundingClientRect`, `getComputedStyle`) confirma que um efeito está posicionado certo, mas não confirma que ele é visível o suficiente pro olho humano, nem que cobre a área toda.** Um `radial-gradient`/`opacity` pode passar em todas as checagens de DOM (posição, background-image aplicado) e ainda assim parecer "sem efeito nenhum" numa captura de tela real — seja por intensidade fraca demais num ponto, seja porque um gradiente radial centralizado (um "holofote") naturalmente já chegou a zero antes de alcançar as bordas/cantos da área.
+- **Um `radial-gradient` sozinho não cobre a largura toda de uma faixa retangular** — ele é um círculo/elipse, então by design fica mais fraco (ou zero) nos cantos, mesmo estando forte no centro. Se o objetivo é "sem faixa escura em nenhum ponto horizontal" (ex: a costura do hero com o header), combine o holofote radial com um `linear-gradient` de topo-a-base por baixo dele — o linear é uniforme na horizontal por definição, então garante uma cobertura mínima em qualquer posição x, enquanto o radial ainda dá o brilho mais forte focado no centro.
+- Ao mexer no `.hero-glow` (`app/globals.css`) ou em qualquer efeito parecido: calcule manualmente (ou confirme com screenshot cobrindo a largura toda, não só o centro) a cobertura resultante nos pontos críticos — aqui, ao longo de toda a costura com o header (y=0% do container, x de 0% a 100%), não só no centro.
+- Configuração atual do `.hero-glow` (jul/2026, corrigida 2x até cobrir a largura toda e ter intensidade suficiente):
+  ```css
+  background:
+    radial-gradient(ellipse 60% 65% at 50% 5%, rgba(29, 183, 97, 0.32), transparent 75%),
+    linear-gradient(to bottom, rgba(29, 183, 97, 0.16), transparent 55%);
+  ```
+  Não remover a camada `linear-gradient` achando que é redundante com o radial — ela é o que garante a cobertura nos cantos/bordas, onde o radial sozinho já caiu a zero.

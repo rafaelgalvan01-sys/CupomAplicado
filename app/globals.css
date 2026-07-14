@@ -159,21 +159,28 @@
   }
 }
 
-/* Marca-d'água do hero da home (HeroBackground.tsx): brilho radial e o
+/* Marca-d'água do hero da home (HeroBackground.tsx): brilho de fundo e o
    ícone da marca invertido pra branco — só faz sentido no tema escuro, onde
    o fundo é escuro o bastante pra um brilho/ícone claro se destacar.
-   IMPORTANTE: o centro do brilho fica perto do topo (5%, não 20%) de
-   propósito — o container do brilho (.hero-glow) se estende com -top-8 até
-   encostar no header (ver HeroBackground.tsx), e um centro mais alto garante
-   que a intensidade already fique forte bem na costura com o header, em vez
-   de cair pra ~10% de opacidade ali (o que visualmente lê como "sem brilho
-   nenhum" mesmo não sendo zero). Qualquer ajuste aqui precisa ser conferido
-   com um screenshot de verdade bem na linha do header — checagem só por
-   getBoundingClientRect/computed style passa mesmo quando a intensidade
-   visual está fraca demais pra o olho perceber. */
+   IMPORTANTE — duas camadas por um motivo:
+   1. O radial-gradient é um "holofote" concentrado atrás da logo/badge.
+      Sozinho, ele cai pra transparente bem antes de alcançar as bordas
+      (por volta de 45% de distância do centro) — ou seja, nos cantos
+      superiores (onde ficam os ícones grandes) a faixa ficava lisa e
+      escura, mesmo com o holofote forte no centro.
+   2. O linear-gradient por baixo garante uma leve tintura verde na LARGURA
+      TODA logo abaixo do header, então não existe posição horizontal onde
+      a costura com o header pareça "sem brilho nenhum".
+   O container do brilho (.hero-glow) se estende com -top-8 até encostar no
+   header (ver HeroBackground.tsx). Qualquer ajuste aqui precisa ser
+   conferido com um screenshot de verdade cobrindo a LARGURA TODA da seção
+   (não só o centro) — checagem só por getBoundingClientRect/computed style
+   passa mesmo quando a cobertura horizontal do brilho está incompleta. */
 @media (prefers-color-scheme: dark) {
   .hero-glow {
-    background: radial-gradient(ellipse 60% 65% at 50% 5%, rgba(29, 183, 97, 0.32), transparent 75%);
+    background:
+      radial-gradient(ellipse 60% 65% at 50% 5%, rgba(29, 183, 97, 0.32), transparent 75%),
+      linear-gradient(to bottom, rgba(29, 183, 97, 0.16), transparent 55%);
   }
   .hero-logo-mark {
     filter: brightness(0) invert(1);
