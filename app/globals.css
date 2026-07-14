@@ -171,8 +171,8 @@
    lugar nenhum — a saída é deixar a elipse larga o suficiente pra a
    opacidade não zerar antes de alcançar as bordas visíveis (~0.10-0.15 nos
    cantos já é o bastante pra não ler como "sem brilho"), em vez de somar
-   uma segunda camada retangular. O container do brilho (.hero-glow) se
-   estende com -top-8 até encostar no header (ver HeroBackground.tsx).
+    uma segunda camada retangular. O container do brilho (.hero-glow) se
+    estende até encostar no header (ver HeroBackground.tsx).
    Qualquer ajuste aqui precisa ser conferido com um screenshot de verdade
    cobrindo a LARGURA TODA da seção (cantos incluídos), não só o centro. */
 @media (prefers-color-scheme: dark) {
