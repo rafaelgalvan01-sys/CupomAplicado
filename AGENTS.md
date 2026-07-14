@@ -51,3 +51,8 @@ Regras fixas, resultado da auditoria de SEO de jul/2026. Aplicar em qualquer pá
   ```css
   background: radial-gradient(ellipse 95% 85% at 50% 8%, rgba(29, 183, 97, 0.3), transparent 82%);
   ```
+
+## `window.open()` em handlers de clique
+
+- **Nunca chame `window.open()` depois de um `await` (ex: `navigator.clipboard.writeText`) direto dentro de um handler de clique.** Isso já causou um bug real (jul/2026, botão "Copiar" do cupom): o navegador atrasava/reavaliava a decisão de bloquear o popup por causa do `await` anterior, enquanto nosso `if (!popup)` já tinha rodado achando que tinha sido bloqueado e navegado a aba atual pro fallback — resultado: a aba nova abria a loja E a aba atual TAMBÉM navegava pra lá.
+- Se for necessário um atraso proposital antes de abrir a aba (ex: dar tempo do usuário ver algo revelado na tela antes de trocar de aba), use um único `setTimeout` chamando `window.open()` **uma única vez**, com a checagem de `if (!popup)` feita nesse mesmo callback — nunca duas chamadas/checagens de `window.open()` na mesma interação (uma síncrona "otimista" + outra depois de um delay), pois é exatamente essa duplicidade que causa a navegação dupla. Mantenha o atraso curto (algo como ~700ms) — atrasos maiores arriscam o navegador não reconhecer mais a chamada como resposta direta ao clique do usuário e bloquear o popup de verdade.

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Copy, Check, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 type Props = {
   couponId: string;
@@ -11,6 +12,11 @@ type Props = {
 
 type Status = "idle" | "copied" | "error";
 
+// Tempo que o usuário tem pra ver o código revelado antes de trocarmos de
+// aba pra loja — abaixo de ~1s ainda conta como resposta direta ao clique
+// pros navegadores (não bloqueiam o window.open por isso).
+const REDIRECT_DELAY_MS = 700;
+
 // Código só aparece depois do clique — igual ao padrão dos concorrentes
 // (Cuponomia, Pelando). Antes disso mostramos pontinhos no lugar do texto
 // real (não é blur: o código não fica no DOM até ser revelado).
@@ -18,18 +24,7 @@ export function CopyCouponButton({ couponId, code }: Props) {
   const [status, setStatus] = useState<Status>("idle");
   const [revealed, setRevealed] = useState(false);
 
-  async function handleClick() {
-    if (code) {
-      try {
-        await navigator.clipboard.writeText(code);
-        setStatus("copied");
-      } catch {
-        setStatus("error");
-      }
-      setRevealed(true);
-      setTimeout(() => setStatus("idle"), 2000);
-    }
-
+  function openStore() {
     const url = `/ir/${couponId}`;
     const popup = window.open(url, "_blank", "noopener,noreferrer");
     if (!popup) {
@@ -37,6 +32,31 @@ export function CopyCouponButton({ couponId, code }: Props) {
       // ainda conseguir chegar na oferta em vez de o clique não fazer nada.
       window.location.href = url;
     }
+  }
+
+  function handleClick() {
+    if (!code) {
+      openStore();
+      return;
+    }
+
+    setRevealed(true);
+    navigator.clipboard
+      .writeText(code)
+      .then(() => {
+        setStatus("copied");
+        toast.success("Código do cupom copiado com sucesso");
+      })
+      .catch(() => setStatus("error"));
+    setTimeout(() => setStatus("idle"), 2000);
+
+    // window.open só roda uma vez, depois de um atraso curto e proposital —
+    // nunca depois de um `await` (ex: clipboard) direto no clique. Isso já
+    // causou um bug em que o navegador atrasava a decisão do popup enquanto
+    // nosso `if (!popup)` já tinha rodado achando bloqueado: resultado, a
+    // aba nova abria E a aba atual TAMBÉM navegava pro site. Com um único
+    // setTimeout controlado por nós, só existe uma checagem, sem essa corrida.
+    setTimeout(openStore, REDIRECT_DELAY_MS);
   }
 
   const label = status === "copied" ? "Copiado!" : status === "error" ? "Erro ao copiar" : code ? "Copiar" : "Ver oferta";

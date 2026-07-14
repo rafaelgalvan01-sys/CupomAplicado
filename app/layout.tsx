@@ -5,6 +5,7 @@ import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
+import { Toaster } from "@/components/ui/sonner";
 import { SITE_URL } from "@/lib/site";
 
 const geistSans = Geist({
@@ -80,6 +81,7 @@ export default function RootLayout({
         </main>
         <Footer />
         <Analytics />
+        <Toaster />
       </body>
     </html>
   );
