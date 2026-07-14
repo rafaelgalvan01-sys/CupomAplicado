@@ -107,9 +107,9 @@ export default async function Home({ searchParams }: Props) {
       <JsonLd data={websiteJsonLd} />
       <JsonLd data={faqJsonLd} />
 
-      <section className="relative isolate flex flex-col items-center gap-3 overflow-hidden py-6 text-center sm:py-10">
+      <section className="relative isolate flex flex-col items-center gap-3 overflow-hidden py-10 text-center sm:py-16">
         <HeroBackground />
-        <div className="relative z-10 flex flex-col items-center gap-3">
+        <div className="relative z-10 flex flex-col items-center gap-3 px-4">
           <Image src={iconMark} alt="" width={48} height={48} className="hero-logo-mark mb-1" priority />
           <span className="flex items-center gap-2 rounded-full border border-brand/22 bg-brand/15 px-3 py-1 text-xs font-medium text-brand-text">
             <span className="relative flex size-1.5">
@@ -130,70 +130,72 @@ export default async function Home({ searchParams }: Props) {
         </div>
       </section>
 
-      <section className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-            Lojas parceiras
-          </h2>
-          <Link href="/lojas" className="text-xs font-medium text-brand-text hover:underline">
-            Ver todas
-          </Link>
-        </div>
-        <StoreCarousel stores={topStores} />
-      </section>
-
-      {featured.length > 0 && (
+      <div className="mx-auto w-full max-w-6xl px-4 pb-14 flex flex-col gap-14">
         <section className="flex flex-col gap-4">
-          <h2 className="flex items-center gap-1.5 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-            <Star className="size-3.5 fill-current text-brand-text" />
-            Destaques
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {featured.map((coupon, index) => (
-              <CouponCard
-                key={coupon.id}
-                coupon={coupon}
-                store={toStoreProp(coupon)}
-                priority={index === 0}
-              />
-            ))}
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+              Lojas parceiras
+            </h2>
+            <Link href="/lojas" className="text-xs font-medium text-brand-text hover:underline">
+              Ver todas
+            </Link>
           </div>
+          <StoreCarousel stores={topStores} />
         </section>
-      )}
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-          {q ? `Resultados para "${q}"` : "Todos os cupons"}
-        </h2>
-        {coupons.length === 0 ? (
-          <p className="text-muted-foreground">Nenhum cupom encontrado.</p>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {coupons.map((coupon, index) => (
-              <CouponCard
-                key={coupon.id}
-                coupon={coupon}
-                store={toStoreProp(coupon)}
-                priority={featured.length === 0 && index === 0}
-              />
-            ))}
-          </div>
+        {featured.length > 0 && (
+          <section className="flex flex-col gap-4">
+            <h2 className="flex items-center gap-1.5 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+              <Star className="size-3.5 fill-current text-brand-text" />
+              Destaques
+            </h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {featured.map((coupon, index) => (
+                <CouponCard
+                  key={coupon.id}
+                  coupon={coupon}
+                  store={toStoreProp(coupon)}
+                  priority={index === 0}
+                />
+              ))}
+            </div>
+          </section>
         )}
-      </section>
 
-      <section className="flex flex-col gap-3 border-t border-border pt-8">
-        <h2 className="text-xl font-semibold text-foreground">Perguntas frequentes</h2>
-        <Accordion className="rounded-lg border border-border bg-card px-4">
-          {HOME_FAQ.map((item, index) => (
-            <AccordionItem key={item.question} value={index}>
-              <AccordionTrigger>{item.question}</AccordionTrigger>
-              <AccordionPanel>
-                <p className="text-muted-foreground">{item.answer}</p>
-              </AccordionPanel>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </section>
+        <section className="flex flex-col gap-4">
+          <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+            {q ? `Resultados para "${q}"` : "Todos os cupons"}
+          </h2>
+          {coupons.length === 0 ? (
+            <p className="text-muted-foreground">Nenhum cupom encontrado.</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {coupons.map((coupon, index) => (
+                <CouponCard
+                  key={coupon.id}
+                  coupon={coupon}
+                  store={toStoreProp(coupon)}
+                  priority={featured.length === 0 && index === 0}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="flex flex-col gap-3 border-t border-border pt-8">
+          <h2 className="text-xl font-semibold text-foreground">Perguntas frequentes</h2>
+          <Accordion className="rounded-lg border border-border bg-card px-4">
+            {HOME_FAQ.map((item, index) => (
+              <AccordionItem key={item.question} value={index}>
+                <AccordionTrigger>{item.question}</AccordionTrigger>
+                <AccordionPanel>
+                  <p className="text-muted-foreground">{item.answer}</p>
+                </AccordionPanel>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </section>
+      </div>
     </div>
   );
 }

@@ -74,7 +74,7 @@ export default function RootLayout({
           Pular para o conteúdo
         </a>
         <Header />
-        <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 outline-none">
+        <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
           {children}
         </main>
         <Footer />

@@ -81,7 +81,7 @@ export default async function SobrePage() {
   };
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="mx-auto w-full max-w-6xl px-4 py-8 flex flex-col gap-10">
       <JsonLd data={aboutJsonLd} />
       <JsonLd data={breadcrumbJsonLd} />
 

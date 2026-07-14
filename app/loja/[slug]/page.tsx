@@ -111,7 +111,7 @@ export default async function StorePage({ params }: Props) {
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="mx-auto w-full max-w-6xl px-4 py-8 flex flex-col gap-8">
       <JsonLd data={breadcrumbJsonLd} />
       {offersJsonLd && <JsonLd data={offersJsonLd} />}
       {faqJsonLd && <JsonLd data={faqJsonLd} />}

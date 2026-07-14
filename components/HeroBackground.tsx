@@ -32,7 +32,7 @@ const ICONS: IconConfig[] = [
 
 export function HeroBackground() {
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 -top-8 bottom-0 z-0">
+    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 bottom-0 z-0">
       <div className="hero-glow absolute inset-0" />
       <div className="absolute inset-0 hidden overflow-hidden lg:block">
         {ICONS.map(({ left, top, size, opacity, flip, fill, duration, delay }, index) => (
