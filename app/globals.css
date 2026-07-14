@@ -159,28 +159,38 @@
   }
 }
 
-/* Marca-d'água do hero da home (HeroBackground.tsx): brilho radial suave e
-   o ícone da marca invertido pra branco — só faz sentido no tema escuro,
-   onde o fundo é escuro o bastante pra um brilho/ícone claro se destacar. */
+/* Marca-d'água do hero da home (HeroBackground.tsx): brilho radial e o
+   ícone da marca invertido pra branco — só faz sentido no tema escuro, onde
+   o fundo é escuro o bastante pra um brilho/ícone claro se destacar.
+   IMPORTANTE: o centro do brilho fica perto do topo (5%, não 20%) de
+   propósito — o container do brilho (.hero-glow) se estende com -top-8 até
+   encostar no header (ver HeroBackground.tsx), e um centro mais alto garante
+   que a intensidade already fique forte bem na costura com o header, em vez
+   de cair pra ~10% de opacidade ali (o que visualmente lê como "sem brilho
+   nenhum" mesmo não sendo zero). Qualquer ajuste aqui precisa ser conferido
+   com um screenshot de verdade bem na linha do header — checagem só por
+   getBoundingClientRect/computed style passa mesmo quando a intensidade
+   visual está fraca demais pra o olho perceber. */
 @media (prefers-color-scheme: dark) {
   .hero-glow {
-    background: radial-gradient(ellipse 55% 70% at 50% 20%, rgba(29, 183, 97, 0.18), transparent 70%);
+    background: radial-gradient(ellipse 60% 65% at 50% 5%, rgba(29, 183, 97, 0.32), transparent 75%);
   }
   .hero-logo-mark {
     filter: brightness(0) invert(1);
   }
 }
 
-/* Flutuação leve dos ícones de cupom do hero — --icon-flip espelha a
-   diagonal do ícone (lado direito) sem brigar com a própria animação,
-   já que os dois ficam na mesma keyframe. */
+/* Flutuação dos ícones de cupom do hero — --icon-flip espelha a diagonal do
+   ícone (lado direito) sem brigar com a própria animação, já que os dois
+   ficam na mesma keyframe. Amplitude de 18px (não 8px) pra ficar perceptível
+   sem virar a animação de "caindo" que já foi revertida antes. */
 @keyframes hero-icon-float {
   0%,
   100% {
     transform: translate(-50%, -50%) scaleX(var(--icon-flip, 1)) translateY(0);
   }
   50% {
-    transform: translate(-50%, -50%) scaleX(var(--icon-flip, 1)) translateY(-8px);
+    transform: translate(-50%, -50%) scaleX(var(--icon-flip, 1)) translateY(-18px);
   }
 }
 

@@ -36,3 +36,9 @@ Regras fixas, resultado da auditoria de SEO de jul/2026. Aplicar em qualquer pá
 ## GitHub Actions (importação de dados)
 
 - **Cada fonte de importação (Lomadee, Awin, o que vier depois) precisa ser independente das outras dentro do mesmo workflow** — a falha de uma nunca pode impedir as demais de rodar. Todo passo de importação depois do primeiro leva `if: always()`. Não usar `continue-on-error` no passo que falha: o job como um todo deve continuar reportando falha nesse caso, pra não perder o alerta por e-mail do GitHub Actions quando uma fonte está fora do ar. Regra criada jul/2026 depois de a Lomadee ficar fora do ar (erro 500 no lado deles) e isso silenciosamente travar a importação da Awin por 17h+, já que ela vinha logo depois no mesmo job.
+
+## Efeitos visuais sutis (glow, gradientes, opacidade)
+
+- **Checagem estrutural (`getBoundingClientRect`, `getComputedStyle`) confirma que um efeito está posicionado certo, mas não confirma que ele é visível o suficiente pro olho humano.** Um `radial-gradient`/`opacity` pode passar em todas as checagens de DOM (posição, background-image aplicado) e ainda assim parecer "sem efeito nenhum" numa captura de tela real, porque a intensidade nos pontos que importam (ex: bem na borda de um elemento) ficou baixa demais.
+- Ao mexer no `.hero-glow` (`app/globals.css`) ou em qualquer efeito parecido: calcule manualmente (ou confirme com screenshot) a opacidade resultante exatamente no ponto crítico (aqui, a costura com o header, y=0% do container), não só confie que "o gradiente existe".
+- Configuração atual do `.hero-glow`, testada e com opacidade de ~0.32 (quase o pico do gradiente) bem na costura com o header: `radial-gradient(ellipse 60% 65% at 50% 5%, rgba(29, 183, 97, 0.32), transparent 75%)`. Não trocar o centro de volta pra baixo (tipo `at 50% 20%`) sem recalcular — foi exatamente isso que deixou a faixa perto do header parecendo apagada da primeira vez (jul/2026).

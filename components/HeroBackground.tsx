@@ -22,12 +22,12 @@ const LARGE_ICON_FILL = "rgba(29, 183, 97, 0.1)";
 // renderizado fora deste container agora). O lado direito é o espelho do
 // esquerdo ("flip" inverte a diagonal do ícone).
 const ICONS: IconConfig[] = [
-  { left: "17%", top: "33%", size: 38, opacity: 0.9, duration: 5, delay: 0 },
-  { left: "7%", top: "58%", size: 92, opacity: 0.95, fill: LARGE_ICON_FILL, duration: 6, delay: -1.5 },
-  { left: "16%", top: "80%", size: 40, opacity: 0.85, duration: 4.5, delay: -3 },
-  { left: "83%", top: "32%", size: 38, opacity: 0.9, flip: true, duration: 5.5, delay: -2 },
-  { left: "93%", top: "58%", size: 92, opacity: 0.95, flip: true, fill: LARGE_ICON_FILL, duration: 6.5, delay: -0.5 },
-  { left: "84%", top: "77%", size: 40, opacity: 0.85, flip: true, duration: 4.8, delay: -4 },
+  { left: "17%", top: "33%", size: 38, opacity: 0.9, duration: 3.5, delay: 0 },
+  { left: "7%", top: "58%", size: 92, opacity: 0.95, fill: LARGE_ICON_FILL, duration: 4.2, delay: -1.5 },
+  { left: "16%", top: "80%", size: 40, opacity: 0.85, duration: 3.2, delay: -3 },
+  { left: "83%", top: "32%", size: 38, opacity: 0.9, flip: true, duration: 3.9, delay: -2 },
+  { left: "93%", top: "58%", size: 92, opacity: 0.95, flip: true, fill: LARGE_ICON_FILL, duration: 4.6, delay: -0.5 },
+  { left: "84%", top: "77%", size: 40, opacity: 0.85, flip: true, duration: 3.4, delay: -4 },
 ];
 
 export function HeroBackground() {
