@@ -37,6 +37,11 @@ Regras fixas, resultado da auditoria de SEO de jul/2026. Aplicar em qualquer pá
 
 - **Cada fonte de importação (Lomadee, Awin, o que vier depois) precisa ser independente das outras dentro do mesmo workflow** — a falha de uma nunca pode impedir as demais de rodar. Todo passo de importação depois do primeiro leva `if: always()`. Não usar `continue-on-error` no passo que falha: o job como um todo deve continuar reportando falha nesse caso, pra não perder o alerta por e-mail do GitHub Actions quando uma fonte está fora do ar. Regra criada jul/2026 depois de a Lomadee ficar fora do ar (erro 500 no lado deles) e isso silenciosamente travar a importação da Awin por 17h+, já que ela vinha logo depois no mesmo job.
 
+## Verificação de mudanças visuais
+
+- **Toda mudança no front-end (layout, componente, estilo, animação) precisa ser conferida no mobile também, não só no desktop** — não basta testar na largura em que a mudança foi pedida/pensada. Usar uma largura de celular real (ex: 375px) além da largura desktop, e nos dois temas (claro/escuro) quando a mudança envolver cor ou contraste. Regra criada jul/2026 depois de mudanças no hero (brilho, ícones, animação) só terem sido verificadas em larguras desktop por várias rodadas seguidas, sem checar mobile nenhuma vez.
+- Coisas específicas pra olhar no mobile: overflow horizontal (`document.body.scrollWidth` não deve passar de `window.innerWidth`), elementos que dependem de breakpoint (`hidden lg:block` etc.) escondendo/aparecendo corretamente, e texto que pode quebrar de forma estranha em telas estreitas.
+
 ## Efeitos visuais sutis (glow, gradientes, opacidade)
 
 - **Checagem estrutural (`getBoundingClientRect`, `getComputedStyle`) confirma que um efeito está posicionado certo, mas não confirma que ele é visível o suficiente pro olho humano.** Um `radial-gradient`/`opacity` pode passar em todas as checagens de DOM (posição, background-image aplicado) e ainda assim parecer "sem efeito nenhum" numa captura de tela real, porque a intensidade nos pontos que importam (ex: bem na borda de um elemento) ficou baixa demais.
