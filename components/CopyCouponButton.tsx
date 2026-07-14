@@ -32,8 +32,24 @@ export function CopyCouponButton({ couponId, code }: Props) {
       return;
     }
 
-    // A aba é aberta em branco JÁ no clique — é a única forma de garantir que
-    // o navegador nunca trate isso como bloqueio de pop-up (uma chamada a
+    // Copia PRIMEIRO, enquanto a aba atual ainda está em foco — a Clipboard
+    // API exige documento focado pra copiar sem pedir permissão explícita; se
+    // abríssemos a aba nova antes, o foco sai daqui bem na hora da cópia e o
+    // navegador (visto no Brave) passa a exibir um prompt de permissão em vez
+    // de copiar direto.
+    setRevealed(true);
+    navigator.clipboard
+      .writeText(code)
+      .then(() => {
+        setStatus("copied");
+        toast.success("Código do cupom copiado com sucesso");
+      })
+      .catch(() => setStatus("error"));
+    setTimeout(() => setStatus("idle"), 2000);
+
+    // A aba é aberta em branco logo em seguida, ainda de forma síncrona (sem
+    // `await` entre o clique e esta chamada) — é a única forma de garantir
+    // que o navegador nunca trate isso como bloqueio de pop-up (uma chamada a
     // window.open atrasada por setTimeout, mesmo que curta, já causou esse
     // exato bug: o navegador ficava em dúvida se vinha de um clique direto e
     // deixava a aba abrir de qualquer jeito enquanto nosso próprio fallback
@@ -44,16 +60,6 @@ export function CopyCouponButton({ couponId, code }: Props) {
     // proteção contra reverse tabnabbing sem perder a referência.
     const popup = window.open("", "_blank");
     if (popup) popup.opener = null;
-
-    setRevealed(true);
-    navigator.clipboard
-      .writeText(code)
-      .then(() => {
-        setStatus("copied");
-        toast.success("Código do cupom copiado com sucesso");
-      })
-      .catch(() => setStatus("error"));
-    setTimeout(() => setStatus("idle"), 2000);
 
     // Só uma navegação acontece aqui: ou a aba já aberta (sem nova checagem
     // de bloqueio, é só um `.location.href` numa janela que já é nossa), ou,
