@@ -12,9 +12,8 @@ type Props = {
 
 type Status = "idle" | "copied" | "error";
 
-// Tempo que o usuário tem pra ver o código revelado antes de trocarmos de
-// aba pra loja — abaixo de ~1s ainda conta como resposta direta ao clique
-// pros navegadores (não bloqueiam o window.open por isso).
+// Tempo que o usuário tem pra ver o código revelado antes da aba já aberta
+// navegar pra loja.
 const REDIRECT_DELAY_MS = 700;
 
 // Código só aparece depois do clique — igual ao padrão dos concorrentes
@@ -24,21 +23,27 @@ export function CopyCouponButton({ couponId, code }: Props) {
   const [status, setStatus] = useState<Status>("idle");
   const [revealed, setRevealed] = useState(false);
 
-  function openStore() {
-    const url = `/ir/${couponId}`;
-    const popup = window.open(url, "_blank", "noopener,noreferrer");
-    if (!popup) {
-      // Popup bloqueado pelo navegador — navega na aba atual para o usuário
-      // ainda conseguir chegar na oferta em vez de o clique não fazer nada.
-      window.location.href = url;
-    }
-  }
-
   function handleClick() {
+    const url = `/ir/${couponId}`;
+
     if (!code) {
-      openStore();
+      const popup = window.open(url, "_blank", "noopener,noreferrer");
+      if (!popup) window.location.href = url;
       return;
     }
+
+    // A aba é aberta em branco JÁ no clique — é a única forma de garantir que
+    // o navegador nunca trate isso como bloqueio de pop-up (uma chamada a
+    // window.open atrasada por setTimeout, mesmo que curta, já causou esse
+    // exato bug: o navegador ficava em dúvida se vinha de um clique direto e
+    // deixava a aba abrir de qualquer jeito enquanto nosso próprio fallback
+    // já tinha rodado achando bloqueado — resultado, abria dobrado). Sem
+    // "noopener"/"noreferrer" aqui porque as duas fazem o retorno ser sempre
+    // null, o que impediria guardar essa referência pra navegar nela depois;
+    // zeramos popup.opener manualmente logo em seguida pra ter a mesma
+    // proteção contra reverse tabnabbing sem perder a referência.
+    const popup = window.open("", "_blank");
+    if (popup) popup.opener = null;
 
     setRevealed(true);
     navigator.clipboard
@@ -50,13 +55,16 @@ export function CopyCouponButton({ couponId, code }: Props) {
       .catch(() => setStatus("error"));
     setTimeout(() => setStatus("idle"), 2000);
 
-    // window.open só roda uma vez, depois de um atraso curto e proposital —
-    // nunca depois de um `await` (ex: clipboard) direto no clique. Isso já
-    // causou um bug em que o navegador atrasava a decisão do popup enquanto
-    // nosso `if (!popup)` já tinha rodado achando bloqueado: resultado, a
-    // aba nova abria E a aba atual TAMBÉM navegava pro site. Com um único
-    // setTimeout controlado por nós, só existe uma checagem, sem essa corrida.
-    setTimeout(openStore, REDIRECT_DELAY_MS);
+    // Só uma navegação acontece aqui: ou a aba já aberta (sem nova checagem
+    // de bloqueio, é só um `.location.href` numa janela que já é nossa), ou,
+    // se ela não existir/tiver sido fechada nesse meio tempo, a aba atual.
+    setTimeout(() => {
+      if (popup && !popup.closed) {
+        popup.location.href = url;
+      } else {
+        window.location.href = url;
+      }
+    }, REDIRECT_DELAY_MS);
   }
 
   const label = status === "copied" ? "Copiado!" : status === "error" ? "Erro ao copiar" : code ? "Copiar" : "Ver oferta";
