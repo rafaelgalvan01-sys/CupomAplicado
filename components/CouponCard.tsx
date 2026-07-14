@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Copy, Flame } from "lucide-react";
+import { Flame } from "lucide-react";
 import type { Coupon } from "@/lib/types";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -108,16 +108,9 @@ export function CouponCard({
       </CardHeader>
 
       <CardContent className="flex flex-col gap-3">
-        {coupon.code && (
-          <div data-slot="coupon-code" className="flex items-center gap-2">
-            <div className="flex flex-1 items-center gap-2 overflow-hidden rounded-md border border-dashed border-border bg-muted px-3 py-2 font-mono text-sm font-semibold">
-              <Copy className="size-3.5 shrink-0 text-muted-foreground" />
-              <span className="truncate">{coupon.code}</span>
-            </div>
-            <CopyCouponButton couponId={coupon.id} code={coupon.code} />
-          </div>
-        )}
-        {!coupon.code && (
+        {coupon.code ? (
+          <CopyCouponButton couponId={coupon.id} code={coupon.code} />
+        ) : (
           <CardFooter className="border-t-0 bg-transparent p-0">
             <CopyCouponButton couponId={coupon.id} code={coupon.code} />
           </CardFooter>
