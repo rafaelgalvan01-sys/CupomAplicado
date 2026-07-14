@@ -27,6 +27,11 @@ jobs:
         run: node scripts/import-lomadee.mjs
 
       - name: Importar cupons da Awin
+        # Roda mesmo se a Lomadee falhar acima — fontes de importação são
+        # independentes, uma fora do ar não pode travar as outras. O job
+        # como um todo continua reportando falha se algum passo falhar,
+        # então o alerta por e-mail do GitHub Actions não se perde.
+        if: always()
         env:
           AWIN_API_TOKEN: ${{ secrets.AWIN_API_TOKEN }}
           AWIN_PUBLISHER_ID: ${{ secrets.AWIN_PUBLISHER_ID }}
