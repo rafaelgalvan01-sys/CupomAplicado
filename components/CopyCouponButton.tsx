@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Copy, Check, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 type Props = {
   couponId: string;
@@ -12,9 +11,9 @@ type Props = {
 
 type Status = "idle" | "copied" | "error";
 
-// Código só fica visível (sem blur) depois do clique — igual ao padrão dos
-// concorrentes (Cuponomia, Pelando). O texto real continua no DOM o tempo
-// todo (bom pra SEO/acessibilidade), só o blur é removido ao revelar.
+// Código só aparece depois do clique — igual ao padrão dos concorrentes
+// (Cuponomia, Pelando). Antes disso mostramos pontinhos no lugar do texto
+// real (não é blur: o código não fica no DOM até ser revelado).
 export function CopyCouponButton({ couponId, code }: Props) {
   const [status, setStatus] = useState<Status>("idle");
   const [revealed, setRevealed] = useState(false);
@@ -57,9 +56,7 @@ export function CopyCouponButton({ couponId, code }: Props) {
     <div data-slot="coupon-code" className="flex items-center gap-2">
       <div className="flex flex-1 items-center gap-2 overflow-hidden rounded-md border border-dashed border-border bg-muted px-3 py-2 font-mono text-sm font-semibold">
         <Copy className="size-3.5 shrink-0 text-muted-foreground" />
-        <span className={cn("truncate transition-[filter] duration-200", !revealed && "select-none blur-[5px]")}>
-          {code}
-        </span>
+        <span className="truncate">{revealed ? code : "•".repeat(code.length)}</span>
       </div>
       {button}
     </div>
