@@ -31,7 +31,8 @@ Regras fixas, resultado da auditoria de SEO de jul/2026. Aplicar em qualquer pá
 
 ## Componentes (shadcn/Base UI)
 
-- Quando um componente shadcn com suporte a `render` (Button, Badge) funciona como navegação, usar `render={<Link href=... />}` — nunca estilizar um `<a>` cru pra imitar o visual, nem `onClick` + `router.push` pra navegação simples.
+- **Toda mudança de front-end (layout, componente, animação, modal, drawer, sheet, tooltip, popover, etc.) deve usar o componente shadcn correspondente quando existir — nunca implementar uma alternativa customizada do zero.** Se o shadcn não tiver o componente, usar o primitivo do `@base-ui/react` diretamente seguindo o mesmo padrão dos componentes shadcn existentes. Regra criada jul/2026 depois de implementar uma gaveta mobile manualmente que causou overflow e problemas visuais, que foram resolvidos substituindo pelo `Sheet` do shadcn.
+- Quando um componente shadcn com suporte a `render` (Button, Badge, SheetClose, etc.) funciona como navegação, usar `render={<Link href=... />}` — nunca estilizar um `<a>` cru pra imitar o visual, nem `onClick` + `router.push` pra navegação simples.
 
 ## GitHub Actions (importação de dados)
 
