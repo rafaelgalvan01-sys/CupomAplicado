@@ -170,6 +170,15 @@ export default async function StorePage({ params }: Props) {
         </section>
       )}
 
+      {store.how_to_use_content && (
+        <section className="flex flex-col gap-3 border-t border-border pt-8">
+          <h2 className="text-xl font-semibold text-foreground">
+            Como usar cupom de desconto {store.name}
+          </h2>
+          <p className="whitespace-pre-line text-muted-foreground">{store.how_to_use_content}</p>
+        </section>
+      )}
+
       {faq.length > 0 && (
         <section className="flex flex-col gap-3 border-t border-border pt-8">
           <h2 className="text-xl font-semibold text-foreground">Perguntas frequentes</h2>

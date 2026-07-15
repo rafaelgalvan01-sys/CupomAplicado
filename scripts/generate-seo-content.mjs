@@ -34,6 +34,11 @@ const RESPONSE_SCHEMA = {
       description:
         "Texto de 200 a 300 palavras em português do Brasil sobre a loja e seus cupons, para SEO. Sem markdown, sem título.",
     },
+    how_to_use_content: {
+      type: "string",
+      description:
+        "Texto de 100 a 180 palavras em português do Brasil explicando especificamente como aplicar um cupom de desconto NESSA loja (onde colar o código no checkout dela, particularidades reais e conhecidas do site da loja, se houver). Se não houver nada específico da loja pra dizer além do processo genérico, foque no processo (copiar no Cupom Aplicado, colar no campo de cupom da loja antes de fechar o pedido). Sem markdown, sem título, sem inventar prazos/percentuais.",
+    },
     faq: {
       type: "array",
       minItems: 4,
@@ -48,7 +53,7 @@ const RESPONSE_SCHEMA = {
       },
     },
   },
-  required: ["seo_description", "faq"],
+  required: ["seo_description", "how_to_use_content", "faq"],
 };
 
 function buildPrompt(store, couponTitles) {
@@ -66,7 +71,8 @@ ${couponsList}
 
 Escreva:
 1. Um texto de SEO (200-300 palavras) descrevendo a loja, o tipo de produto que ela vende, e como usar os cupons dela no Cupom Aplicado. Tom natural, direto, sem promessas exageradas ("melhor loja do Brasil"), sem inventar dados que não foram dados (números de desconto específicos, prazos). Não repita o nome da loja em excesso.
-2. Entre 4 e 5 perguntas frequentes (FAQ) que um comprador teria sobre cupons dessa loja especificamente (ex: como aplicar o cupom, se acumula com outras promoções, se funciona pra frete grátis) com respostas curtas e objetivas em português.
+2. Um texto separado (100-180 palavras) especificamente sobre COMO APLICAR o cupom no checkout dessa loja — não repita o texto do item 1, é uma seção "como usar" própria da página da loja.
+3. Entre 4 e 5 perguntas frequentes (FAQ) que um comprador teria sobre cupons dessa loja especificamente (ex: como aplicar o cupom, se acumula com outras promoções, se funciona pra frete grátis) com respostas curtas e objetivas em português.
 
 Responda apenas com o JSON pedido.`;
 }
@@ -114,16 +120,22 @@ async function generateForStore(store) {
 }
 
 async function main() {
-  let query = supabase.from("stores").select("id, name, faq, seo_description, categories(name)").eq("active", true);
+  let query = supabase
+    .from("stores")
+    .select("id, name, faq, seo_description, how_to_use_content, categories(name)")
+    .eq("active", true);
   if (!FORCE) {
-    query = query.is("seo_description", null);
+    // Filtra por how_to_use_content (não seo_description) pra que lojas que já
+    // tinham conteúdo gerado antes dessa coluna existir sejam pegas por uma
+    // rodada normal (sem precisar de --force) e ganhem a seção nova.
+    query = query.is("how_to_use_content", null);
   }
 
   const { data: stores, error } = await query;
   if (error) throw error;
 
   if (!stores || stores.length === 0) {
-    console.log(FORCE ? "Nenhuma loja encontrada." : "Todas as lojas já têm seo_description. Use --force pra regerar.");
+    console.log(FORCE ? "Nenhuma loja encontrada." : "Todas as lojas já têm conteúdo SEO completo. Use --force pra regerar.");
     return;
   }
 
@@ -134,7 +146,7 @@ async function main() {
 
   for (const store of stores) {
     try {
-      const { seo_description, faq } = await generateForStore({
+      const { seo_description, how_to_use_content, faq } = await generateForStore({
         id: store.id,
         name: store.name,
         category: store.categories?.name,
@@ -142,7 +154,7 @@ async function main() {
 
       const { error: updateError } = await supabase
         .from("stores")
-        .update({ seo_description, faq })
+        .update({ seo_description, how_to_use_content, faq })
         .eq("id", store.id);
 
       if (updateError) throw updateError;

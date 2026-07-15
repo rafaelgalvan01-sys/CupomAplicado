@@ -13,6 +13,7 @@ export type Store = {
   affiliate_base_url: string | null
   active: boolean
   seo_description: string | null
+  how_to_use_content: string | null
   faq: StoreFaqItem[]
 }
 
