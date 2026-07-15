@@ -6,6 +6,13 @@ import { Search, X, Store, BookOpen, Menu } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetClose,
+  SheetHeader,
+} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
 export function Header() {
@@ -22,16 +29,6 @@ export function Header() {
       refocusTriggerRef.current = false;
     }
   }, [mobileSearchOpen]);
-
-  // Fecha o menu ao pressionar Escape
-  useEffect(() => {
-    if (!menuOpen) return;
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setMenuOpen(false);
-    }
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [menuOpen]);
 
   // Trava o scroll do body quando o menu mobile está aberto
   useEffect(() => {
@@ -130,46 +127,32 @@ export function Header() {
               >
                 <Search className="size-4" />
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-label="Abrir menu"
-                onClick={() => setMenuOpen(true)}
-              >
-                <Menu className="size-4" />
-              </Button>
+              <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+                <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Abrir menu" />}>
+                  <Menu className="size-4" />
+                </SheetTrigger>
+                <SheetContent side="right" className="w-64 sm:hidden">
+                  <SheetHeader className="border-b border-border px-5 py-4">
+                    <Link href="/" onClick={closeMenu}>
+                      <Logo />
+                    </Link>
+                  </SheetHeader>
+                  <nav className="flex flex-col gap-0.5 p-3">
+                    <SheetClose render={<Link href="/lojas" className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors" />}>
+                      <Store className="size-5 text-muted-foreground shrink-0" />
+                      Lojas parceiras
+                    </SheetClose>
+                    <SheetClose render={<Link href="/como-usar-cupom-de-desconto" className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors" />}>
+                      <BookOpen className="size-5 text-muted-foreground shrink-0" />
+                      Como usar cupom de desconto
+                    </SheetClose>
+                  </nav>
+                </SheetContent>
+              </Sheet>
             </>
           )}
         </div>
       </div>
-
-      {/* Gaveta de navegação mobile */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-50 sm:hidden">
-          <div className="absolute inset-0 bg-black/40 animate-in fade-in duration-200" onClick={closeMenu} aria-hidden="true" />
-          <div className="absolute right-0 top-0 bottom-0 flex w-64 max-w-[80vw] flex-col bg-background shadow-xl animate-in slide-in-from-right duration-200">
-            <div className="flex items-center justify-between border-b border-border px-5 py-4">
-              <Link href="/" className="shrink-0" onClick={closeMenu}>
-                <Logo />
-              </Link>
-              <Button type="button" variant="ghost" size="icon" aria-label="Fechar menu" onClick={closeMenu}>
-                <X className="size-5" />
-              </Button>
-            </div>
-            <nav className="flex flex-col gap-0.5 p-3">
-              <Link href="/lojas" onClick={closeMenu} className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors">
-                <Store className="size-5 text-muted-foreground shrink-0" />
-                Lojas parceiras
-              </Link>
-              <Link href="/como-usar-cupom-de-desconto" onClick={closeMenu} className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors">
-                <BookOpen className="size-5 text-muted-foreground shrink-0" />
-                Como usar cupom de desconto
-              </Link>
-            </nav>
-          </div>
-        </div>
-      )}
     </header>
   );
 }
