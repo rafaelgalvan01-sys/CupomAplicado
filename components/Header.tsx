@@ -30,16 +30,6 @@ export function Header() {
     }
   }, [mobileSearchOpen]);
 
-  // Trava o scroll do body quando o menu mobile está aberto
-  useEffect(() => {
-    if (menuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => { document.body.style.overflow = ""; };
-  }, [menuOpen]);
-
   function closeMobileSearch() {
     refocusTriggerRef.current = true;
     setMobileSearchOpen(false);
