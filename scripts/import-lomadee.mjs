@@ -22,18 +22,34 @@ async function lomadeeFetch(path) {
   return res.json();
 }
 
+// Retorna o que conseguiu buscar mesmo se uma página no meio do caminho
+// falhar (a API da Lomadee já teve instabilidade real nisso — erro 500 em
+// /affiliate/campaigns a partir da página 2). Antes, uma falha em qualquer
+// página descartava TUDO, inclusive páginas anteriores que já tinham vindo
+// certinho. `partial: true` sinaliza que a paginação não terminou — o
+// chamador decide o que fazer com isso (aqui, seguir importando o parcial
+// mas ainda assim reportar falha no final, pra não perder o alerta por
+// e-mail do GitHub Actions quando a Lomadee está instável).
 async function fetchAllPages(path) {
   const items = [];
   let page = 1;
   while (page <= 50) {
     const separator = path.includes("?") ? "&" : "?";
-    const json = await lomadeeFetch(`${path}${separator}page=${page}`);
+    let json;
+    try {
+      json = await lomadeeFetch(`${path}${separator}page=${page}`);
+    } catch (err) {
+      console.error(
+        `Falha ao buscar página ${page} de ${path}: ${err.message}. Seguindo com os ${items.length} item(ns) já obtidos.`
+      );
+      return { items, partial: true };
+    }
     const data = json.data ?? [];
     items.push(...data);
     if (data.length === 0) break;
     page += 1;
   }
-  return items;
+  return { items, partial: false };
 }
 
 function slugify(text) {
@@ -59,11 +75,11 @@ function parseDiscount(name) {
 
 async function main() {
   console.log("Buscando marcas na Lomadee...");
-  const brands = await fetchAllPages("/affiliate/brands");
+  const { items: brands, partial: brandsPartial } = await fetchAllPages("/affiliate/brands");
   console.log(`${brands.length} marcas encontradas.`);
 
   console.log("Buscando cupons/campanhas na Lomadee...");
-  const campaigns = await fetchAllPages("/affiliate/campaigns");
+  const { items: campaigns, partial: campaignsPartial } = await fetchAllPages("/affiliate/campaigns");
   console.log(`${campaigns.length} campanhas encontradas.`);
 
   const coupons = campaigns.filter(
@@ -138,6 +154,15 @@ async function main() {
   }
 
   console.log(`Pronto! ${imported} cupons importados/atualizados.`);
+
+  // Mesmo importando o que deu, uma paginação incompleta significa que a
+  // Lomadee está instável — o job continua marcado como falho (ver
+  // AGENTS.md) pra não perder o alerta por e-mail do GitHub Actions.
+  if (brandsPartial || campaignsPartial) {
+    throw new Error(
+      "Importação parcial: uma ou mais páginas da API da Lomadee falharam (ver logs acima). Os dados já obtidos foram importados mesmo assim."
+    );
+  }
 }
 
 main().catch((err) => {

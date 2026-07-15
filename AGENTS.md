@@ -37,6 +37,7 @@ Regras fixas, resultado da auditoria de SEO de jul/2026. Aplicar em qualquer pá
 ## GitHub Actions (importação de dados)
 
 - **Cada fonte de importação (Lomadee, Awin, o que vier depois) precisa ser independente das outras dentro do mesmo workflow** — a falha de uma nunca pode impedir as demais de rodar. Todo passo de importação depois do primeiro leva `if: always()`. Não usar `continue-on-error` no passo que falha: o job como um todo deve continuar reportando falha nesse caso, pra não perder o alerta por e-mail do GitHub Actions quando uma fonte está fora do ar. Regra criada jul/2026 depois de a Lomadee ficar fora do ar (erro 500 no lado deles) e isso silenciosamente travar a importação da Awin por 17h+, já que ela vinha logo depois no mesmo job.
+- **Dentro de uma fonte só, paginação que falha no meio do caminho deve importar o que já foi buscado, não descartar tudo** — mas o job continua reportando falha mesmo assim (nunca engolir o erro completamente), só que depois de já ter gravado o parcial. Regra criada jul/2026 depois de a Lomadee retornar erro 500 em `/affiliate/campaigns` a partir da página 2 por 27h+ seguidas: o script antigo descartava até a página 1 (que tinha vindo certinha) porque uma exceção em qualquer página abortava a função inteira antes de gravar qualquer coisa no Supabase. Ver `scripts/import-lomadee.mjs` (`fetchAllPages` retorna `{ items, partial }`; `main()` lança erro só no final, depois de já ter importado o parcial, se `partial` for `true` em qualquer fonte).
 
 ## Verificação de mudanças visuais
 
