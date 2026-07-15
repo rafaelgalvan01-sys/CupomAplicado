@@ -33,6 +33,16 @@ export function Header() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [menuOpen]);
 
+  // Trava o scroll do body quando o menu mobile está aberto
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
+
   function closeMobileSearch() {
     refocusTriggerRef.current = true;
     setMobileSearchOpen(false);
@@ -135,50 +145,31 @@ export function Header() {
       </div>
 
       {/* Gaveta de navegação mobile */}
-      <div
-        className={`fixed inset-0 z-50 sm:hidden transition-all duration-200 ${
-          menuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
-        }`}
-      >
-        <div
-          className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-200"
-          style={{ opacity: menuOpen ? 1 : 0 }}
-          onClick={closeMenu}
-          aria-hidden="true"
-        />
-        <div
-          className={`absolute right-0 top-0 bottom-0 flex w-64 max-w-[80vw] flex-col border-l border-border bg-background shadow-xl transition-transform duration-200 ${
-            menuOpen ? "translate-x-0" : "translate-x-full"
-          }`}
-        >
-          <div className="flex items-center justify-between border-b border-border px-4 py-4">
-            <span className="text-sm font-semibold text-foreground">Menu</span>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label="Fechar menu"
-              onClick={closeMenu}
-            >
-              <X className="size-4" />
-            </Button>
-          </div>
-          <nav className="flex flex-col gap-1 p-2">
-            <div onClick={closeMenu} role="presentation">
-              <Button variant="ghost" className="w-full justify-start gap-3" render={<Link href="/lojas" />}>
-                <Store className="size-4" />
+      {menuOpen && (
+        <div className="fixed inset-0 z-50 sm:hidden">
+          <div className="absolute inset-0 bg-black/40 animate-in fade-in duration-200" onClick={closeMenu} aria-hidden="true" />
+          <div className="absolute right-0 top-0 bottom-0 flex w-64 max-w-[80vw] flex-col bg-background shadow-xl animate-in slide-in-from-right duration-200">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
+              <Link href="/" className="shrink-0" onClick={closeMenu}>
+                <Logo />
+              </Link>
+              <Button type="button" variant="ghost" size="icon" aria-label="Fechar menu" onClick={closeMenu}>
+                <X className="size-5" />
+              </Button>
+            </div>
+            <nav className="flex flex-col gap-0.5 p-3">
+              <Link href="/lojas" onClick={closeMenu} className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors">
+                <Store className="size-5 text-muted-foreground shrink-0" />
                 Lojas parceiras
-              </Button>
-            </div>
-            <div onClick={closeMenu} role="presentation">
-              <Button variant="ghost" className="w-full justify-start gap-3" render={<Link href="/como-usar-cupom-de-desconto" />}>
-                <BookOpen className="size-4" />
+              </Link>
+              <Link href="/como-usar-cupom-de-desconto" onClick={closeMenu} className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors">
+                <BookOpen className="size-5 text-muted-foreground shrink-0" />
                 Como usar cupom de desconto
-              </Button>
-            </div>
-          </nav>
+              </Link>
+            </nav>
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }
