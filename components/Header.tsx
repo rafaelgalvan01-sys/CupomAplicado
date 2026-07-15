@@ -46,36 +46,37 @@ export function Header() {
     <header className="sticky top-0 z-10 border-b border-border bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-4 sm:py-4">
         {!mobileSearchOpen && (
-          <div className="flex items-center gap-1 sm:gap-3">
-            <Link href="/" className="shrink-0 transition-opacity hover:opacity-80">
-              <Logo />
-            </Link>
-            <nav className="hidden md:flex items-center gap-0.5" aria-label="Navegação principal">
-              <Button variant="ghost" size="sm" render={<Link href="/lojas" />}>
-                <Store className="size-4" />
-                Lojas parceiras
-              </Button>
-              <Button variant="ghost" size="sm" render={<Link href="/como-usar-cupom-de-desconto" />}>
-                <BookOpen className="size-4" />
-                Como usar
-              </Button>
-            </nav>
-          </div>
+          <Link href="/" className="shrink-0 transition-opacity hover:opacity-80">
+            <Logo />
+          </Link>
         )}
 
-        <form action="/" method="get" className="relative hidden sm:block flex-1 max-w-sm mx-auto">
-          <label htmlFor="header-search" className="sr-only">
-            Buscar cupons ou lojas
-          </label>
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            id="header-search"
-            type="search"
-            name="q"
-            placeholder="Buscar cupons, lojas..."
-            className="pl-9"
-          />
-        </form>
+        <div className="relative hidden sm:flex flex-1 justify-center">
+          <form action="/" method="get" className="max-w-sm w-full">
+            <label htmlFor="header-search" className="sr-only">
+              Buscar cupons ou lojas
+            </label>
+            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="header-search"
+              type="search"
+              name="q"
+              placeholder="Buscar cupons, lojas..."
+              className="pl-9"
+            />
+          </form>
+        </div>
+
+        <nav className="hidden md:flex items-center gap-0.5 shrink-0" aria-label="Navegação principal">
+          <Button variant="ghost" size="sm" render={<Link href="/lojas" />}>
+            <Store className="size-4" />
+            Lojas parceiras
+          </Button>
+          <Button variant="ghost" size="sm" render={<Link href="/como-usar-cupom-de-desconto" />}>
+            <BookOpen className="size-4" />
+            Como usar
+          </Button>
+        </nav>
 
         <div className={cn("flex items-center sm:hidden", mobileSearchOpen ? "flex-1" : "ml-auto")}>
           {mobileSearchOpen ? (
