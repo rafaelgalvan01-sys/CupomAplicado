@@ -51,8 +51,8 @@ export function Header() {
           </Link>
         )}
 
-        <div className="relative hidden sm:flex flex-1 justify-center">
-          <form action="/" method="get" className="max-w-sm w-full">
+        <div className="hidden sm:flex flex-1 justify-center">
+          <form action="/" method="get" className="relative max-w-sm w-full">
             <label htmlFor="header-search" className="sr-only">
               Buscar cupons ou lojas
             </label>
