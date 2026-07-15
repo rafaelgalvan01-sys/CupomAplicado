@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ThumbsUp, ThumbsDown, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -63,21 +64,23 @@ export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expi
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2 text-xs">
         <span className="shrink-0 text-muted-foreground">Funciona?</span>
-        <div
-          role="progressbar"
-          aria-label="Porcentagem de avaliações positivas"
-          aria-valuenow={total > 0 ? percent : undefined}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuetext={total > 0 ? `${percent}%` : "Sem avaliações ainda"}
-          className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted"
-        >
-          {total > 0 && (
-            <div
-              className={cn("h-full rounded-full transition-all", barColor(percent))}
-              style={{ width: `${percent}%` }}
-            />
-          )}
+        <div className="flex-1">
+          <div
+            role="progressbar"
+            aria-label="Porcentagem de avaliações positivas"
+            aria-valuenow={total > 0 ? percent : undefined}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuetext={total > 0 ? `${percent}%` : "Sem avaliações ainda"}
+            className="h-1.5 overflow-hidden rounded-full bg-muted"
+          >
+            {total > 0 && (
+              <div
+                className={cn("h-full rounded-full transition-all", barColor(percent))}
+                style={{ width: `${percent}%` }}
+              />
+            )}
+          </div>
         </div>
         <span className={cn("shrink-0 font-semibold", total > 0 ? textColor(percent) : "text-muted-foreground")}>
           {total > 0 ? `${percent}%` : "—"}
@@ -86,34 +89,38 @@ export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expi
 
       <div data-slot="coupon-footer" className="flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             aria-label="Está funcionando"
             aria-pressed={voted === "up"}
             onClick={() => vote(true)}
             disabled={loading}
             className={cn(
-              "flex items-center gap-1 rounded-full border border-border px-2 py-1 outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50",
+              "rounded-full border border-border px-2 py-1",
               voted === "up" && "border-brand/50 text-brand-text"
             )}
           >
             <ThumbsUp className="size-3.5" />
             {helpful}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             aria-label="Não está funcionando"
             aria-pressed={voted === "down"}
             onClick={() => vote(false)}
             disabled={loading}
             className={cn(
-              "flex items-center gap-1 rounded-full border border-border px-2 py-1 outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50",
+              "rounded-full border border-border px-2 py-1",
               voted === "down" && "border-destructive/50 text-destructive"
             )}
           >
             <ThumbsDown className="size-3.5" />
             {notHelpful}
-          </button>
+          </Button>
         </div>
 
         <div className="flex items-center gap-3">

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Store } from "@/lib/types";
 import { avatarColorFor } from "@/lib/badge-colors";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function StoreCarousel({ stores }: { stores: Store[] }) {
@@ -40,15 +41,17 @@ export function StoreCarousel({ stores }: { stores: Store[] }) {
 
   return (
     <div data-slot="store-carousel" className="relative">
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="icon"
         onClick={() => scroll(-1)}
         aria-label="Anterior"
         disabled={!canScrollLeft}
-        className="absolute top-1/2 left-0 z-10 flex size-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-card-border bg-card text-foreground shadow-md outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-40"
+        className="absolute top-1/2 left-0 z-10 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-md"
       >
         <ChevronLeft className="size-4" />
-      </button>
+      </Button>
 
       <div
         ref={scrollRef}
@@ -87,15 +90,17 @@ export function StoreCarousel({ stores }: { stores: Store[] }) {
         ))}
       </div>
 
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="icon"
         onClick={() => scroll(1)}
         aria-label="Próximo"
         disabled={!canScrollRight}
-        className="absolute top-1/2 right-0 z-10 flex size-9 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-card-border bg-card text-foreground shadow-md outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-40"
+        className="absolute top-1/2 right-0 z-10 translate-x-1/2 -translate-y-1/2 rounded-full shadow-md"
       >
         <ChevronRight className="size-4" />
-      </button>
+      </Button>
     </div>
   );
 }

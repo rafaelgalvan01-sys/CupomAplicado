@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function TruncatedText({ text, className }: { text: string; className?: string }) {
@@ -19,13 +20,15 @@ export function TruncatedText({ text, className }: { text: string; className?: s
         {text}
       </span>
       {(overflowing || expanded) && (
-        <button
+        <Button
           type="button"
+          variant="link"
+          size="sm"
           onClick={() => setExpanded((e) => !e)}
-          className="shrink-0 rounded text-xs font-medium text-brand-text outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="h-auto shrink-0 p-0 text-xs"
         >
           {expanded ? "ler menos" : "ler mais"}
-        </button>
+        </Button>
       )}
     </p>
   );
