@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Search, X } from "lucide-react";
+import { Search, X, Store, BookOpen, Menu } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 export function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const searchTriggerRef = useRef<HTMLButtonElement>(null);
   const refocusTriggerRef = useRef(false);
 
@@ -22,21 +23,47 @@ export function Header() {
     }
   }, [mobileSearchOpen]);
 
+  // Fecha o menu ao pressionar Escape
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setMenuOpen(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
+
   function closeMobileSearch() {
     refocusTriggerRef.current = true;
     setMobileSearchOpen(false);
+  }
+
+  function closeMenu() {
+    setMenuOpen(false);
   }
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-4 sm:py-4">
         {!mobileSearchOpen && (
-          <Link href="/" className="shrink-0 transition-opacity hover:opacity-80">
-            <Logo />
-          </Link>
+          <div className="flex items-center gap-1 sm:gap-3">
+            <Link href="/" className="shrink-0 transition-opacity hover:opacity-80">
+              <Logo />
+            </Link>
+            <nav className="hidden md:flex items-center gap-0.5" aria-label="Navegação principal">
+              <Button variant="ghost" size="sm" render={<Link href="/lojas" />}>
+                <Store className="size-4" />
+                Lojas parceiras
+              </Button>
+              <Button variant="ghost" size="sm" render={<Link href="/como-usar-cupom-de-desconto" />}>
+                <BookOpen className="size-4" />
+                Como usar
+              </Button>
+            </nav>
+          </div>
         )}
 
-        <form action="/" method="get" className="relative ml-auto hidden w-full max-w-sm sm:block">
+        <form action="/" method="get" className="relative hidden sm:block flex-1 max-w-sm mx-auto">
           <label htmlFor="header-search" className="sr-only">
             Buscar cupons ou lojas
           </label>
@@ -79,19 +106,76 @@ export function Header() {
               </Button>
             </form>
           ) : (
+            <>
+              <Button
+                ref={searchTriggerRef}
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Buscar cupons ou lojas"
+                aria-expanded={mobileSearchOpen}
+                aria-controls="header-search-mobile"
+                onClick={() => setMobileSearchOpen(true)}
+              >
+                <Search className="size-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Abrir menu"
+                onClick={() => setMenuOpen(true)}
+              >
+                <Menu className="size-4" />
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Gaveta de navegação mobile */}
+      <div
+        className={`fixed inset-0 z-50 sm:hidden transition-all duration-200 ${
+          menuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+        }`}
+      >
+        <div
+          className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-200"
+          style={{ opacity: menuOpen ? 1 : 0 }}
+          onClick={closeMenu}
+          aria-hidden="true"
+        />
+        <div
+          className={`absolute right-0 top-0 bottom-0 flex w-64 max-w-[80vw] flex-col border-l border-border bg-background shadow-xl transition-transform duration-200 ${
+            menuOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="flex items-center justify-between border-b border-border px-4 py-4">
+            <span className="text-sm font-semibold text-foreground">Menu</span>
             <Button
-              ref={searchTriggerRef}
               type="button"
               variant="ghost"
               size="icon"
-              aria-label="Buscar cupons ou lojas"
-              aria-expanded={mobileSearchOpen}
-              aria-controls="header-search-mobile"
-              onClick={() => setMobileSearchOpen(true)}
+              aria-label="Fechar menu"
+              onClick={closeMenu}
             >
-              <Search className="size-4" />
+              <X className="size-4" />
             </Button>
-          )}
+          </div>
+          <nav className="flex flex-col gap-1 p-2">
+            <div onClick={closeMenu} role="presentation">
+              <Button variant="ghost" className="w-full justify-start gap-3" render={<Link href="/lojas" />}>
+                <Store className="size-4" />
+                Lojas parceiras
+              </Button>
+            </div>
+            <div onClick={closeMenu} role="presentation">
+              <Button variant="ghost" className="w-full justify-start gap-3" render={<Link href="/como-usar-cupom-de-desconto" />}>
+                <BookOpen className="size-4" />
+                Como usar cupom de desconto
+              </Button>
+            </div>
+          </nav>
         </div>
       </div>
     </header>
