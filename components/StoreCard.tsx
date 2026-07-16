@@ -16,14 +16,14 @@ export function StoreCard({ store, priority = false }: { store: Store; priority?
       <Card className="group h-full transition-all hover:-translate-y-0.5 hover:shadow-lg hover:ring-brand/40">
         <CardHeader>
           {store.logo_url && (
-            <div className="relative mb-2 h-10 w-28 overflow-hidden rounded-md">
+            <div className="relative mb-2 h-10 w-28 overflow-hidden rounded-md bg-white">
               <Image
                 src={store.logo_url}
                 alt={store.name}
                 fill
                 sizes="112px"
                 priority={priority}
-                className="object-contain object-left"
+                className="object-contain p-1"
               />
             </div>
           )}
