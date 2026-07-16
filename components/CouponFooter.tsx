@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ThumbsUp, ThumbsDown, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Progress, ProgressTrack, ProgressIndicator } from "@/components/ui/progress";
 import { cn, formatRelativeTime } from "@/lib/utils";
 
 type Props = {
@@ -65,24 +66,18 @@ export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expi
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2 text-xs">
         <span className="shrink-0 text-muted-foreground">Funciona?</span>
-        <div className="flex-1">
-          <div
-            role="progressbar"
-            aria-label="Porcentagem de avaliações positivas"
-            aria-valuenow={total > 0 ? percent : undefined}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuetext={total > 0 ? `${percent}%` : "Sem avaliações ainda"}
-            className="h-1.5 overflow-hidden rounded-full bg-muted"
-          >
-            {total > 0 && (
-              <div
-                className={cn("h-full rounded-full transition-all", barColor(percent))}
-                style={{ width: `${percent}%` }}
-              />
-            )}
-          </div>
-        </div>
+        <Progress
+          value={total > 0 ? percent : null}
+          aria-label="Porcentagem de avaliações positivas"
+          getAriaValueText={(_, value) => (value === null ? "Sem avaliações ainda" : `${value}%`)}
+          className="flex-1"
+        >
+          <ProgressTrack className="h-1.5">
+            <ProgressIndicator
+              className={cn("rounded-full transition-all", total > 0 ? barColor(percent) : "w-0")}
+            />
+          </ProgressTrack>
+        </Progress>
         <span className={cn("shrink-0 font-semibold", total > 0 ? textColor(percent) : "text-muted-foreground")}>
           {total > 0 ? `${percent}%` : "—"}
         </span>
