@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Search, X, Store, BookOpen, Menu } from "lucide-react";
+import { Search, X, Store, BookOpen, Tags, Menu } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,7 +67,11 @@ export function Header() {
         <nav className="hidden md:flex items-center gap-0.5 shrink-0" aria-label="Navegação principal">
           <Button variant="ghost" size="sm" render={<Link href="/lojas" />}>
             <Store className="size-4" />
-            Lojas parceiras
+            Lojas
+          </Button>
+          <Button variant="ghost" size="sm" render={<Link href="/categorias" />}>
+            <Tags className="size-4" />
+            Categorias
           </Button>
           <Button variant="ghost" size="sm" render={<Link href="/como-usar-cupom-de-desconto" />}>
             <BookOpen className="size-4" />
@@ -130,7 +134,11 @@ export function Header() {
                   <nav className="flex flex-col gap-0.5 p-3">
                     <SheetClose render={<Link href="/lojas" className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors" />}>
                       <Store className="size-5 text-muted-foreground shrink-0" />
-                      Lojas parceiras
+                      Lojas
+                    </SheetClose>
+                    <SheetClose render={<Link href="/categorias" className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors" />}>
+                      <Tags className="size-5 text-muted-foreground shrink-0" />
+                      Categorias
                     </SheetClose>
                     <SheetClose render={<Link href="/como-usar-cupom-de-desconto" className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors" />}>
                       <BookOpen className="size-5 text-muted-foreground shrink-0" />

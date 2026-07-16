@@ -1,3 +1,9 @@
+export type Category = {
+  id: string
+  name: string
+  slug: string
+}
+
 export type StoreFaqItem = {
   question: string
   answer: string
@@ -16,6 +22,7 @@ export type Store = {
   how_to_use_content: string | null
   faq: StoreFaqItem[]
   updated_at: string
+  categories?: Category | null
 }
 
 export type DiscountType = 'percentual' | 'fixo' | 'frete_gratis' | 'outro'

@@ -1,7 +1,7 @@
 import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
-import type { Store, Coupon, CouponWithStore } from './types'
+import type { Store, Coupon, CouponWithStore, Category } from './types'
 
 // !inner garante que cupons de lojas inativas (ou bloqueadas por RLS) somem
 // da lista, em vez de aparecer com "loja" vazia.
@@ -14,6 +14,75 @@ const COUPON_WITH_STORE_SELECT =
 // independente da rota ser estática ou não (ex: a home usa searchParams,
 // o que por si só já impede cache no nível de rota).
 const REVALIDATE_SECONDS = 300
+
+export const getCategories = unstable_cache(
+  async (): Promise<Category[]> => {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name')
+    if (error) throw error
+    return data
+  },
+  ['categories'],
+  { revalidate: REVALIDATE_SECONDS }
+)
+
+// Só pro sitemap: usa !inner pra excluir categorias sem nenhuma loja ativa
+// (mesmo padrão de getSitemapStores) — uma categoria vazia vira noindex na
+// própria página (ver app/categoria/[slug]/page.tsx) e não faz sentido
+// oferecê-la pro Google via sitemap.
+export const getSitemapCategories = unstable_cache(
+  async (): Promise<{ slug: string }[]> => {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('slug, stores!inner(id)')
+      .eq('stores.active', true)
+    if (error) throw error
+
+    const seen = new Set<string>()
+    for (const row of data as { slug: string }[]) seen.add(row.slug)
+    return [...seen].map((slug) => ({ slug }))
+  },
+  ['sitemap-categories'],
+  { revalidate: REVALIDATE_SECONDS }
+)
+
+// Retorna lojas de uma categoria filtrando pelo slug da categoria.
+// O join com categories faz o inner join (só lojas com categoria compatível)
+// e já traz os dados da categoria junto.
+export const getStoresByCategory = cache(
+  unstable_cache(
+    async (categorySlug: string): Promise<Store[]> => {
+      const { data, error } = await supabase
+        .from('stores')
+        .select('*, categories!inner(name, slug)')
+        .eq('active', true)
+        .eq('categories.slug', categorySlug)
+        .order('name')
+      if (error) throw error
+      return data as unknown as Store[]
+    },
+    ['stores-by-category'],
+    { revalidate: REVALIDATE_SECONDS }
+  )
+)
+
+export const getCategoryBySlug = cache(
+  unstable_cache(
+    async (slug: string): Promise<Category | null> => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('slug', slug)
+        .maybeSingle()
+      if (error) throw error
+      return data
+    },
+    ['category-by-slug'],
+    { revalidate: REVALIDATE_SECONDS }
+  )
+)
 
 // cache() deduplica a chamada entre generateMetadata e a página em si, que
 // pedem os mesmos dados dentro da mesma requisição; unstable_cache guarda

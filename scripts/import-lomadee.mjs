@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { matchCategory, ensureCategory } from "./category-utils.mjs";
 
 const LOMADEE_API_KEY = process.env.LOMADEE_API_KEY;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -119,7 +120,7 @@ async function main() {
         },
         { onConflict: "external_id" }
       )
-      .select("id")
+      .select("id, category_id")
       .single();
 
     if (error) {
@@ -127,6 +128,20 @@ async function main() {
       continue;
     }
     storeIdByExternalId.set(brand.id, data.id);
+
+    // Só infere/atribui categoria se a loja ainda não tiver uma — nunca
+    // sobrescreve uma categoria já definida (manual ou de import anterior).
+    // Sem essa checagem, toda rodada do cron (a cada 3h) reclassificaria
+    // TODAS as lojas de novo, inclusive as já corrigidas manualmente.
+    if (!data.category_id) {
+      const match = matchCategory(brand.name, brand.segment);
+      if (match) {
+        const categoryId = await ensureCategory(supabase, match.slug, match.name);
+        if (categoryId) {
+          await supabase.from("stores").update({ category_id: categoryId }).eq("id", data.id);
+        }
+      }
+    }
   }
 
   let imported = 0;

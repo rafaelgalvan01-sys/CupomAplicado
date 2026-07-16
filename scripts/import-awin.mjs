@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { matchCategory, ensureCategory } from "./category-utils.mjs";
 
 const AWIN_API_TOKEN = process.env.AWIN_API_TOKEN;
 const AWIN_PUBLISHER_ID = process.env.AWIN_PUBLISHER_ID;
@@ -134,7 +135,7 @@ async function main() {
         },
         { onConflict: "external_id" }
       )
-      .select("id")
+      .select("id, category_id")
       .single();
 
     if (error) {
@@ -142,6 +143,18 @@ async function main() {
       continue;
     }
     storeIdByAdvertiserId.set(advertiserId, data.id);
+
+    // Só infere/atribui categoria se a loja ainda não tiver uma — nunca
+    // sobrescreve uma categoria já definida (manual ou de import anterior).
+    if (!data.category_id) {
+      const match = matchCategory(name, programme?.description ?? fallbackPromo?.advertiser?.name);
+      if (match) {
+        const categoryId = await ensureCategory(supabase, match.slug, match.name);
+        if (categoryId) {
+          await supabase.from("stores").update({ category_id: categoryId }).eq("id", data.id);
+        }
+      }
+    }
   }
 
   let imported = 0;
