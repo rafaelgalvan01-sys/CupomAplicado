@@ -149,7 +149,7 @@ export default async function Home({ searchParams }: Props) {
               <Star className="size-3.5 fill-current text-brand-text" />
               Destaques
             </h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {featured.map((coupon, index) => (
                 <CouponCard
                   key={coupon.id}
@@ -169,7 +169,7 @@ export default async function Home({ searchParams }: Props) {
           {coupons.length === 0 ? (
             <p className="text-muted-foreground">Nenhum cupom encontrado.</p>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {coupons.map((coupon, index) => (
                 <CouponCard
                   key={coupon.id}
