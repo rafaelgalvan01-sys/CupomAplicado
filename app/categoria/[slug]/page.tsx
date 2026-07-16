@@ -4,6 +4,7 @@ import { getCategories, getCategoryBySlug, getStoresByCategory } from "@/lib/dat
 import { StoreCard } from "@/components/StoreCard";
 import { JsonLd } from "@/components/JsonLd";
 import { SITE_URL } from "@/lib/site";
+import { truncateText } from "@/lib/utils";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -12,6 +13,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionPanel,
+} from "@/components/ui/accordion";
 
 export const revalidate = 300;
 
@@ -30,7 +37,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const stores = await getStoresByCategory(slug);
 
   const title = `Cupons de desconto em ${category.name} — Cupom Aplicado`;
-  const description = `Encontre os melhores cupons de desconto em ${category.name}. Economize em suas lojas favoritas com cupons verificados pela comunidade.`;
+  const description = category.seo_description?.trim()
+    ? truncateText(category.seo_description.trim(), 155)
+    : `Encontre os melhores cupons de desconto em ${category.name}. Economize em suas lojas favoritas com cupons verificados pela comunidade.`;
 
   return {
     title,
@@ -62,9 +71,33 @@ export default async function CategoriaPage({ params }: Props) {
     ],
   };
 
+  const itemListJsonLd = stores.length > 0 && {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: stores.map((store, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: store.name,
+      url: `${SITE_URL}/loja/${store.slug}`,
+    })),
+  };
+
+  const faq = category.faq ?? [];
+  const faqJsonLd = faq.length > 0 && {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 flex flex-col gap-8">
       <JsonLd data={breadcrumbJsonLd} />
+      {itemListJsonLd && <JsonLd data={itemListJsonLd} />}
+      {faqJsonLd && <JsonLd data={faqJsonLd} />}
 
       <Breadcrumb>
         <BreadcrumbList>
@@ -103,6 +136,40 @@ export default async function CategoriaPage({ params }: Props) {
           </div>
         )}
       </section>
+
+      {category.seo_description && (
+        <section className="flex flex-col gap-3 border-t border-border pt-8">
+          <h2 className="text-xl font-semibold text-foreground">
+            Sobre cupons de {category.name}
+          </h2>
+          <p className="whitespace-pre-line text-muted-foreground">{category.seo_description}</p>
+        </section>
+      )}
+
+      {category.how_to_use_content && (
+        <section className="flex flex-col gap-3 border-t border-border pt-8">
+          <h2 className="text-xl font-semibold text-foreground">
+            Como escolher o melhor cupom de {category.name}
+          </h2>
+          <p className="whitespace-pre-line text-muted-foreground">{category.how_to_use_content}</p>
+        </section>
+      )}
+
+      {faq.length > 0 && (
+        <section className="flex flex-col gap-3 border-t border-border pt-8">
+          <h2 className="text-xl font-semibold text-foreground">Perguntas frequentes</h2>
+          <Accordion className="rounded-lg border border-border bg-card px-4">
+            {faq.map((item, index) => (
+              <AccordionItem key={item.question} value={index}>
+                <AccordionTrigger>{item.question}</AccordionTrigger>
+                <AccordionPanel>
+                  <p className="text-muted-foreground">{item.answer}</p>
+                </AccordionPanel>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </section>
+      )}
     </div>
   );
 }

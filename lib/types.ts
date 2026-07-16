@@ -1,12 +1,15 @@
+export type FaqItem = {
+  question: string
+  answer: string
+}
+
 export type Category = {
   id: string
   name: string
   slug: string
-}
-
-export type StoreFaqItem = {
-  question: string
-  answer: string
+  seo_description: string | null
+  how_to_use_content: string | null
+  faq: FaqItem[]
 }
 
 export type Store = {
@@ -20,7 +23,7 @@ export type Store = {
   active: boolean
   seo_description: string | null
   how_to_use_content: string | null
-  faq: StoreFaqItem[]
+  faq: FaqItem[]
   updated_at: string
   categories?: Category | null
 }
