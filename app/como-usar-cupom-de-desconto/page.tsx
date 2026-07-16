@@ -58,6 +58,13 @@ const STEPS = [
   },
 ];
 
+const REASONS_NOT_WORKING = [
+  "Valor mínimo de compra não atingido.",
+  "Cupom válido só pra primeira compra na loja.",
+  "Categoria de produto excluída da promoção (comum em eletrônicos e itens já em liquidação).",
+  "Cupom esgotado antes da data de validade informada.",
+];
+
 const FAQ = [
   {
     question: "Por que meu cupom de desconto não funcionou?",
@@ -141,21 +148,23 @@ export default function ComoUsarCupomDeDescontoPage() {
 
       <section className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold text-foreground">Passo a passo</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <ol className="grid list-none grid-cols-1 gap-4 sm:grid-cols-3">
           {STEPS.map((step, index) => (
-            <Card key={step.title}>
-              <CardHeader>
-                <step.icon className="size-5 text-brand-text" />
-                <CardTitle className="mt-2">
-                  {index + 1}. {step.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">{step.description}</p>
-              </CardContent>
-            </Card>
+            <li key={step.title}>
+              <Card className="h-full">
+                <CardHeader>
+                  <step.icon className="size-5 text-brand-text" />
+                  <CardTitle className="mt-2">
+                    {index + 1}. {step.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">{step.description}</p>
+                </CardContent>
+              </Card>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
 
       <section className="flex flex-col gap-3 border-t border-border pt-8">
@@ -163,13 +172,18 @@ export default function ComoUsarCupomDeDescontoPage() {
           Por que um cupom de desconto às vezes não funciona
         </h2>
         <p className="max-w-2xl text-muted-foreground">
-          Mesmo copiando o código certinho, o desconto pode não ser aplicado por alguns motivos que
-          não têm relação com o Cupom Aplicado, mas com as regras da própria loja: valor mínimo de
-          compra não atingido, cupom válido só pra primeira compra, categoria de produto excluída da
-          promoção (comum em eletrônicos e itens já em liquidação), ou o cupom simplesmente
-          esgotou antes da data de validade informada. Por isso cada cupom no site mostra o
-          indicador &quot;Funciona?&quot;, baseado nos votos de quem já tentou usar — um jeito rápido
-          de saber se vale a pena tentar antes de ir até o checkout da loja.
+          Um cupom deixa de funcionar quando a compra não atende a alguma regra definida pela
+          própria loja — não tem relação com o Cupom Aplicado. Os motivos mais comuns:
+        </p>
+        <ul className="max-w-2xl list-disc space-y-1 pl-5 text-muted-foreground">
+          {REASONS_NOT_WORKING.map((reason) => (
+            <li key={reason}>{reason}</li>
+          ))}
+        </ul>
+        <p className="max-w-2xl text-muted-foreground">
+          Por isso cada cupom no site mostra o indicador &quot;Funciona?&quot;, baseado nos votos de
+          quem já tentou usar — um jeito rápido de saber se vale a pena tentar antes de ir até o
+          checkout da loja.
         </p>
       </section>
 

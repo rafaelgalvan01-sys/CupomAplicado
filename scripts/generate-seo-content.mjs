@@ -32,12 +32,12 @@ const RESPONSE_SCHEMA = {
     seo_description: {
       type: "string",
       description:
-        "Texto de 200 a 300 palavras em português do Brasil sobre a loja e seus cupons, para SEO. Sem markdown, sem título.",
+        "Texto de 200 a 300 palavras em português do Brasil sobre a loja e seus cupons, para SEO. A PRIMEIRA frase precisa responder sozinha, sem depender do resto do parágrafo, à pergunta 'o que é essa loja e que tipo de cupom ela oferece' — pensada pra ser citável isoladamente por um mecanismo de busca com IA (Google AI Overviews, Perplexity, ChatGPT), não só por um leitor humano que vai ler o parágrafo inteiro. O resto do texto elabora depois dessa frase inicial. Sem markdown, sem título.",
     },
     how_to_use_content: {
       type: "string",
       description:
-        "Texto de 100 a 180 palavras em português do Brasil explicando especificamente como aplicar um cupom de desconto NESSA loja (onde colar o código no checkout dela, particularidades reais e conhecidas do site da loja, se houver). Se não houver nada específico da loja pra dizer além do processo genérico, foque no processo (copiar no Cupom Aplicado, colar no campo de cupom da loja antes de fechar o pedido). Sem markdown, sem título, sem inventar prazos/percentuais.",
+        "Texto de 100 a 180 palavras em português do Brasil explicando especificamente como aplicar um cupom de desconto NESSA loja (onde colar o código no checkout dela, particularidades reais e conhecidas do site da loja, se houver). Comece com uma frase direta e autocontida (ex: 'Para usar um cupom na {loja}, cole o código no campo [X] antes de fechar o pedido') antes de elaborar — não comece com contexto/introdução. Se houver mais de um motivo/passo, prefira listar cada um em frase curta própria em vez de encadear tudo numa frase só longa. Se não houver nada específico da loja pra dizer além do processo genérico, foque no processo (copiar no Cupom Aplicado, colar no campo de cupom da loja antes de fechar o pedido). Sem markdown, sem título, sem inventar prazos/percentuais.",
     },
     faq: {
       type: "array",
@@ -72,7 +72,7 @@ ${couponsList}
 Escreva:
 1. Um texto de SEO (200-300 palavras) descrevendo a loja, o tipo de produto que ela vende, e como usar os cupons dela no Cupom Aplicado. Tom natural, direto, sem promessas exageradas ("melhor loja do Brasil"), sem inventar dados que não foram dados (números de desconto específicos, prazos). Não repita o nome da loja em excesso.
 2. Um texto separado (100-180 palavras) especificamente sobre COMO APLICAR o cupom no checkout dessa loja — não repita o texto do item 1, é uma seção "como usar" própria da página da loja.
-3. Entre 4 e 5 perguntas frequentes (FAQ) que um comprador teria sobre cupons dessa loja especificamente (ex: como aplicar o cupom, se acumula com outras promoções, se funciona pra frete grátis) com respostas curtas e objetivas em português.
+3. Entre 4 e 5 perguntas frequentes (FAQ) que um comprador teria sobre cupons dessa loja especificamente (ex: como aplicar o cupom, se acumula com outras promoções, se funciona pra frete grátis). Cada resposta começa com a resposta direta em si (ex: "Sim, ..."/"Não, ...") na primeira frase, sem enrolação antes — pensado pra ser lido isoladamente, fora do contexto da pergunta, e ainda fazer sentido completo.
 
 Responda apenas com o JSON pedido.`;
 }
