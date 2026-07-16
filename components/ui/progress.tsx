@@ -4,6 +4,12 @@ import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
 
 import { cn } from "@/lib/utils"
 
+// Não insere Track/Indicator padrão sozinho — quem usa compõe explicitamente
+// (<Progress><ProgressTrack><ProgressIndicator /></ProgressTrack></Progress>),
+// igual à anatomia documentada do Base UI. Inserir um Track+Indicator próprio
+// aqui E permitir que o consumidor passe o dele via children resultava em
+// duas barras de progresso empilhadas quando alguém customizava a cor do
+// indicador (caso do "Funciona?" em CouponFooter.tsx).
 function Progress({
   className,
   children,
@@ -18,9 +24,6 @@ function Progress({
       {...props}
     >
       {children}
-      <ProgressTrack>
-        <ProgressIndicator />
-      </ProgressTrack>
     </ProgressPrimitive.Root>
   )
 }
