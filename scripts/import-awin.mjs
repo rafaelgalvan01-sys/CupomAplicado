@@ -75,6 +75,14 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
+// Algumas marcas na Awin também vêm com sufixo " BR" (ex: "Kabum BR") — não
+// faz sentido pro negócio já que o site é só Brasil. Só limpa o nome de
+// exibição; o slug continua vindo do nome original (ver chamada de slugify
+// abaixo) pra não mudar URL de loja já indexada.
+function cleanStoreName(name) {
+  return name.replace(/\s+BR$/i, "").trim();
+}
+
 function parseDiscount(title) {
   const percent = title.match(/(\d+)\s*%/);
   if (percent) return { discount_type: "percentual", discount_value: Number(percent[1]) };
@@ -115,7 +123,7 @@ async function main() {
         {
           external_id: `awin-${advertiserId}`,
           source: "awin",
-          name,
+          name: cleanStoreName(name),
           slug: slugify(name),
           logo_url: programme?.logoUrl ?? null,
           description: programme?.description ?? null,

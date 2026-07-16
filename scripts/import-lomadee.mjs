@@ -61,6 +61,14 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
+// A Lomadee manda o nome da marca com sufixo " BR" (ex: "Kabum BR") — não faz
+// sentido pro negócio já que o site é só Brasil. Só limpa o nome de exibição;
+// o slug continua vindo do nome original (ver chamada de slugify abaixo) pra
+// não mudar URL de loja já indexada.
+function cleanStoreName(name) {
+  return name.replace(/\s+BR$/i, "").trim();
+}
+
 function parseDiscount(name) {
   const percent = name.match(/(\d+)\s*%/);
   if (percent) return { discount_type: "percentual", discount_value: Number(percent[1]) };
@@ -102,7 +110,7 @@ async function main() {
         {
           external_id: brand.id,
           source: "lomadee",
-          name: brand.name,
+          name: cleanStoreName(brand.name),
           slug: slugify(brand.name),
           logo_url: brand.logo ?? null,
           description: brand.segment ? `Cupons de ${brand.segment}` : null,
