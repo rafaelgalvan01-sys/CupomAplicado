@@ -15,6 +15,7 @@ export type Store = {
   seo_description: string | null
   how_to_use_content: string | null
   faq: StoreFaqItem[]
+  updated_at: string
 }
 
 export type DiscountType = 'percentual' | 'fixo' | 'frete_gratis' | 'outro'
@@ -34,6 +35,7 @@ export type Coupon = {
   is_highlight: boolean
   helpful_count: number
   not_helpful_count: number
+  updated_at: string
 }
 
 export type CouponWithStore = Coupon & {

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ThumbsUp, ThumbsDown, Calendar } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, formatRelativeTime } from "@/lib/utils";
 
 type Props = {
   couponId: string;
@@ -11,6 +11,7 @@ type Props = {
   initialNotHelpful: number;
   expiresAt: string | null;
   clicks: number;
+  updatedAt: string;
 };
 
 function barColor(percent: number) {
@@ -30,7 +31,7 @@ function formatDate(dateStr: string) {
   return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
-export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expiresAt, clicks }: Props) {
+export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expiresAt, clicks, updatedAt }: Props) {
   const [helpful, setHelpful] = useState(initialHelpful);
   const [notHelpful, setNotHelpful] = useState(initialNotHelpful);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
@@ -124,6 +125,12 @@ export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expi
         </div>
 
         <div className="flex items-center gap-3">
+          {updatedAt && (
+            <span className="flex items-center gap-1" title="Baseado na última importação/atualização real deste cupom">
+              <Clock className="size-3" />
+              Atualizado {formatRelativeTime(updatedAt)}
+            </span>
+          )}
           {expiresAt && (
             <span className="flex items-center gap-1">
               <Calendar className="size-3" />

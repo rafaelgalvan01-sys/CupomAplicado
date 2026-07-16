@@ -5,7 +5,7 @@ import { getStoreBySlug, getCouponsByStore, getStores } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
 import { JsonLd } from "@/components/JsonLd";
 import { SITE_URL } from "@/lib/site";
-import { truncateText } from "@/lib/utils";
+import { truncateText, formatRelativeTime } from "@/lib/utils";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -68,6 +68,14 @@ export default async function StorePage({ params }: Props) {
   if (!store) notFound();
 
   const coupons = await getCouponsByStore(store.id);
+
+  // Frescor real (não decorativo): a data mais recente entre os cupons
+  // ativos, não uma data fixa — reflete quando essa listagem realmente
+  // mudou pela última vez (import/geração de conteúdo).
+  const mostRecentUpdate = coupons.reduce<string | null>(
+    (latest, c) => (!latest || c.updated_at > latest ? c.updated_at : latest),
+    null
+  );
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -145,9 +153,16 @@ export default async function StorePage({ params }: Props) {
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-xl font-semibold text-foreground">
-          Cupons ativos ({coupons.length})
-        </h2>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <h2 className="text-xl font-semibold text-foreground">
+            Cupons ativos ({coupons.length})
+          </h2>
+          {mostRecentUpdate && (
+            <span className="text-xs text-muted-foreground">
+              Atualizado {formatRelativeTime(mostRecentUpdate)}
+            </span>
+          )}
+        </div>
         {coupons.length === 0 ? (
           <p className="text-muted-foreground">Nenhum cupom ativo no momento para esta loja.</p>
         ) : (

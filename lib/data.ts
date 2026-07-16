@@ -153,21 +153,43 @@ export const getActiveCouponsCount = unstable_cache(
 
 // Só pro sitemap: usa !inner pra já excluir lojas sem nenhum cupom ativo
 // (essas lojas viram noindex na própria página — não faz sentido oferecê-las
-// pro Google via sitemap) e devolve a data do cupom mais recente de cada
-// loja como lastModified.
+// pro Google via sitemap) e devolve o updated_at mais recente entre a loja e
+// seus cupons como lastModified — updated_at reflete a última escrita real
+// (import/geração de conteúdo), diferente de created_at, que fica parado na
+// primeira vez que a linha foi criada.
+type SitemapStoreRow = {
+  slug: string
+  updated_at?: string
+  created_at?: string
+  coupons: { updated_at?: string; created_at?: string }[]
+}
+
 export const getSitemapStores = unstable_cache(
   async (): Promise<{ slug: string; lastModified: Date }[]> => {
-    const { data, error } = await supabase
+    const initial = await supabase
       .from('stores')
-      .select('slug, created_at, coupons!inner(created_at)')
+      .select('slug, updated_at, coupons!inner(updated_at)')
       .eq('active', true)
       .eq('coupons.active', true)
+
+    // 42703 = coluna inexistente — cobre o período entre este deploy e a
+    // migração 0006 ser aplicada no Supabase. Sem esse fallback o sitemap
+    // fica fora do ar até a migração rodar.
+    const { data, error } =
+      initial.error?.code === '42703'
+        ? await supabase
+            .from('stores')
+            .select('slug, created_at, coupons!inner(created_at)')
+            .eq('active', true)
+            .eq('coupons.active', true)
+        : initial
+
     if (error) throw error
 
-    return (data ?? []).map((store) => {
+    return ((data ?? []) as SitemapStoreRow[]).map((store) => {
       const dates = [
-        new Date(store.created_at).getTime(),
-        ...store.coupons.map((c) => new Date(c.created_at).getTime()),
+        new Date(store.updated_at ?? store.created_at!).getTime(),
+        ...store.coupons.map((c) => new Date(c.updated_at ?? c.created_at!).getTime()),
       ]
       return { slug: store.slug, lastModified: new Date(Math.max(...dates)) }
     })

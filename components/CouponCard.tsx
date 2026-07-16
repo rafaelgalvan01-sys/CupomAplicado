@@ -122,6 +122,7 @@ export function CouponCard({
           initialNotHelpful={coupon.not_helpful_count}
           expiresAt={coupon.expires_at}
           clicks={coupon.clicks}
+          updatedAt={coupon.updated_at}
         />
       </CardContent>
     </Card>

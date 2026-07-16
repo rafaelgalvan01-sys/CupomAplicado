@@ -8,6 +8,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 Regras fixas, resultado da auditoria de SEO de jul/2026. Aplicar em qualquer página/componente novo, não só nos que já existem.
 
+## Migrações e período de transição (deploy antes da migração rodar)
+
+- **`select('*')` degrada bem quando uma coluna nova ainda não existe no Supabase (o campo só vem `undefined`); `select('coluna_especifica')` explícito NÃO degrada — a query inteira falha com erro de Postgres (`42703`, coluna inexistente) até a migração ser aplicada.** Isso já quebrou o `sitemap.xml` em dev (500) na migração 0006, porque `getSitemapStores` usa `select('slug, updated_at, ...')` em vez de `'*'`. Qualquer `lib/data.ts` que usa `select()` com lista explícita de colunas e referencia uma coluna de migração recente precisa de fallback pro nome antigo da coluna (checar `error.code === '42703'`) ou aceitar que vai ficar fora do ar até a migração rodar — nunca assumir que "funciona igual ao `select('*')`".
+- Em JSX/render, todo campo de migração recente (`store.campo_novo`, `coupon.campo_novo`) precisa do guard `{campo && (...)}` até a migração ser aplicada em produção — mesmo padrão já usado pra `faq`/`seo_description` (ver comentários em `app/loja/[slug]/page.tsx`).
+
 ## Cache
 
 - Toda função nova em `lib/data.ts` que **não** depende de dado por-requisição (sem `searchParams`/`cookies` no meio do caminho) deve ser envolvida em `unstable_cache` (ver `REVALIDATE_SECONDS` no topo do arquivo pro padrão de janela).
