@@ -7,9 +7,16 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Store } from "@/lib/types";
 import { avatarColorFor } from "@/lib/badge-colors";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-export function StoreCarousel({ stores }: { stores: Store[] }) {
+type Props = {
+  stores: Store[];
+  title: string;
+  viewAllHref: string;
+};
+
+export function StoreCarousel({ stores, title, viewAllHref }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -40,18 +47,39 @@ export function StoreCarousel({ stores }: { stores: Store[] }) {
   }
 
   return (
-    <div data-slot="store-carousel" className="relative">
-      <Button
-        type="button"
-        variant="outline"
-        size="icon"
-        onClick={() => scroll(-1)}
-        aria-label="Anterior"
-        disabled={!canScrollLeft}
-        className="absolute top-1/2 left-0 z-10 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-md"
-      >
-        <ChevronLeft className="size-4" />
-      </Button>
+    <section data-slot="store-carousel" className="flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">{title}</h2>
+        <div className="flex items-center gap-3">
+          <Link href={viewAllHref} className="text-xs font-medium text-brand-text hover:underline">
+            Ver todas
+          </Link>
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => scroll(-1)}
+              aria-label="Anterior"
+              disabled={!canScrollLeft}
+              className="size-7 rounded-full"
+            >
+              <ChevronLeft className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => scroll(1)}
+              aria-label="Próximo"
+              disabled={!canScrollRight}
+              className="size-7 rounded-full"
+            >
+              <ChevronRight className="size-3.5" />
+            </Button>
+          </div>
+        </div>
+      </div>
 
       <div
         ref={scrollRef}
@@ -61,46 +89,42 @@ export function StoreCarousel({ stores }: { stores: Store[] }) {
           <Link
             key={store.id}
             href={`/loja/${store.slug}`}
-            className="flex w-48 shrink-0 flex-col items-center gap-3 rounded-2xl border border-card-border bg-card px-4 py-6 text-center transition-all hover:-translate-y-0.5 hover:shadow-lg"
+            className="group w-48 shrink-0 rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           >
-            {store.logo_url ? (
-              <span className="relative size-16 overflow-hidden rounded-xl bg-white">
-                <Image
-                  src={store.logo_url}
-                  alt={store.name}
-                  fill
-                  sizes="64px"
-                  priority={index < 4}
-                  className="object-contain p-2"
-                />
-              </span>
-            ) : (
-              <span
-                className={cn(
-                  "flex size-16 items-center justify-center rounded-xl bg-white text-2xl font-bold",
-                  avatarColorFor(store.name)
+            <Card size="sm" className="transition-all hover:-translate-y-0.5 hover:shadow-lg">
+              <CardContent className="flex items-center gap-3">
+                {store.logo_url ? (
+                  <span className="relative size-10 shrink-0 overflow-hidden rounded-lg bg-white">
+                    <Image
+                      src={store.logo_url}
+                      alt={store.name}
+                      fill
+                      sizes="40px"
+                      priority={index < 4}
+                      className="object-contain p-1"
+                    />
+                  </span>
+                ) : (
+                  <span
+                    className={cn(
+                      "flex size-10 shrink-0 items-center justify-center rounded-lg text-base font-bold",
+                      avatarColorFor(store.name)
+                    )}
+                  >
+                    {store.name.charAt(0)}
+                  </span>
                 )}
-              >
-                {store.name.charAt(0)}
-              </span>
-            )}
-            <span className="line-clamp-1 text-sm font-medium text-foreground">{store.name}</span>
-            <span className="rounded-full bg-muted px-3 py-1.5 text-xs text-muted-foreground">Ver cupons</span>
+                <CardTitle className="line-clamp-1 text-sm">
+                  <span className="group-hover/card:hidden group-focus-visible:hidden">{store.name}</span>
+                  <span className="hidden text-brand-text group-hover/card:inline group-focus-visible:inline">
+                    Ver cupons
+                  </span>
+                </CardTitle>
+              </CardContent>
+            </Card>
           </Link>
         ))}
       </div>
-
-      <Button
-        type="button"
-        variant="outline"
-        size="icon"
-        onClick={() => scroll(1)}
-        aria-label="Próximo"
-        disabled={!canScrollRight}
-        className="absolute top-1/2 right-0 z-10 translate-x-1/2 -translate-y-1/2 rounded-full shadow-md"
-      >
-        <ChevronRight className="size-4" />
-      </Button>
-    </div>
+    </section>
   );
 }

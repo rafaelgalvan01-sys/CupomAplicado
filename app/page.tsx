@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { Star } from "lucide-react";
 import {
   getFeaturedCoupons,
@@ -103,14 +102,14 @@ export default async function Home({ searchParams }: Props) {
   };
 
   return (
-    <div className="flex flex-col gap-14">
+    <div className="flex flex-col gap-8">
       <JsonLd data={websiteJsonLd} />
       <JsonLd data={faqJsonLd} />
 
-      <section className="relative isolate flex flex-col items-center gap-3 overflow-hidden py-10 text-center sm:py-16">
+      <section className="relative isolate flex flex-col items-center gap-2 overflow-hidden py-6 text-center sm:py-10">
         <HeroBackground />
-        <div className="relative z-10 flex flex-col items-center gap-3 px-4">
-          <Image src={iconMark} alt="" width={48} height={48} className="hero-logo-mark mb-1" priority />
+        <div className="relative z-10 flex flex-col items-center gap-2 px-4">
+          <Image src={iconMark} alt="" width={40} height={40} className="hero-logo-mark" priority />
           <span className="flex items-center gap-2 rounded-full border border-brand/22 bg-brand/15 px-3 py-1 text-xs font-medium text-brand-text">
             <span className="relative flex size-1.5">
               <span className="absolute inset-0 rounded-full bg-brand" style={{ animation: "badge-dot-pulse 2.5s ease-out infinite" }} />
@@ -118,30 +117,17 @@ export default async function Home({ searchParams }: Props) {
             </span>
             {activeCount} {activeCount === 1 ? "cupom ativo hoje" : "cupons ativos hoje"}
           </span>
-          <h1 className="max-w-2xl text-4xl tracking-tight text-foreground sm:text-5xl">
+          <h1 className="max-w-2xl text-3xl tracking-tight text-foreground sm:text-5xl">
             <span className="block font-semibold">Cupons de desconto</span>
-            <span className="block font-light text-brand-text">para economizar em cada compra</span>
+            <span className="block whitespace-nowrap text-xl font-light text-brand-text sm:text-4xl md:text-5xl">
+              para economizar em cada compra
+            </span>
           </h1>
-          <p className="max-w-xl text-lg text-muted-foreground">
-            Verificados pela comunidade.
-            <br />
-            Vote se funcionou para ajudar outros usuários.
-          </p>
         </div>
       </section>
 
-      <div className="mx-auto w-full max-w-6xl px-4 pb-14 flex flex-col gap-14">
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-              Lojas parceiras
-            </h2>
-            <Link href="/lojas" className="text-xs font-medium text-brand-text hover:underline">
-              Ver todas
-            </Link>
-          </div>
-          <StoreCarousel stores={topStores} />
-        </section>
+      <div className="mx-auto w-full max-w-6xl px-4 pb-14 flex flex-col gap-8">
+        <StoreCarousel stores={topStores} title="Lojas parceiras" viewAllHref="/lojas" />
 
         {featured.length > 0 && (
           <section className="flex flex-col gap-4">

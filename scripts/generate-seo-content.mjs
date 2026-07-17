@@ -14,11 +14,16 @@ if (!GEMINI_API_KEY || !SUPABASE_URL || !SUPABASE_SECRET_KEY) {
 
 // Passe --force pra regerar lojas que já têm seo_description.
 const FORCE = process.argv.includes("--force");
-const MODEL = "gemini-3.5-flash"; // free tier
+// gemini-3.5-flash tem cota gratuita diária de só 20 req/dia (confirmado via
+// erro 429 real da API) — insuficiente mesmo para o volume baixo deste
+// projeto, ainda mais dividida com scripts/generate-category-seo-content.mjs
+// (mesma GEMINI_API_KEY, mesma cota). gemini-2.5-flash e gemini-2.5-flash-lite
+// retornam 404 "no longer available to new users" nesta conta (modelos
+// aposentados pra contas novas). gemini-flash-lite-latest é o único testado
+// que respondeu OK sem 404/429 — é um alias que a Google aponta pro modelo
+// "lite" atual recomendado, com cota gratuita própria. Trocado jul/2026.
+const MODEL = "gemini-flash-lite-latest"; // free tier
 
-// O free tier desse modelo permite só 5 requisições por minuto (confirmado
-// via erro 429 real da API — o comentário antigo aqui assumia um limite bem
-// maior). 13s de intervalo mantém ritmo de ~4,6/min, com margem de segurança.
 const REQUEST_INTERVAL_MS = 13000;
 const MAX_ATTEMPTS_ON_RATE_LIMIT = 3;
 const RATE_LIMIT_BACKOFF_MS = 20000;

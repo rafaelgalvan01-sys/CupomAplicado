@@ -63,9 +63,8 @@ export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expi
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2 text-xs">
-        <span className="shrink-0 text-muted-foreground">Funciona?</span>
+    <div data-slot="coupon-footer" className="flex flex-col gap-1.5 border-t border-border pt-2.5 text-xs">
+      <div className="flex items-center gap-2">
         <Progress
           value={total > 0 ? percent : null}
           aria-label="Porcentagem de avaliações positivas"
@@ -81,59 +80,56 @@ export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expi
         <span className={cn("shrink-0 font-semibold", total > 0 ? textColor(percent) : "text-muted-foreground")}>
           {total > 0 ? `${percent}%` : "—"}
         </span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          aria-label="Está funcionando"
+          aria-pressed={voted === "up"}
+          onClick={() => vote(true)}
+          disabled={loading}
+          className={cn(
+            "rounded-full border border-border px-2 py-1",
+            voted === "up" && "border-brand/50 text-brand-text"
+          )}
+        >
+          <ThumbsUp className="size-3.5" />
+          {helpful}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          aria-label="Não está funcionando"
+          aria-pressed={voted === "down"}
+          onClick={() => vote(false)}
+          disabled={loading}
+          className={cn(
+            "rounded-full border border-border px-2 py-1",
+            voted === "down" && "border-destructive/50 text-destructive"
+          )}
+        >
+          <ThumbsDown className="size-3.5" />
+          {notHelpful}
+        </Button>
       </div>
 
-      <div data-slot="coupon-footer" className="flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            aria-label="Está funcionando"
-            aria-pressed={voted === "up"}
-            onClick={() => vote(true)}
-            disabled={loading}
-            className={cn(
-              "rounded-full border border-border px-2 py-1",
-              voted === "up" && "border-brand/50 text-brand-text"
-            )}
-          >
-            <ThumbsUp className="size-3.5" />
-            {helpful}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            aria-label="Não está funcionando"
-            aria-pressed={voted === "down"}
-            onClick={() => vote(false)}
-            disabled={loading}
-            className={cn(
-              "rounded-full border border-border px-2 py-1",
-              voted === "down" && "border-destructive/50 text-destructive"
-            )}
-          >
-            <ThumbsDown className="size-3.5" />
-            {notHelpful}
-          </Button>
-        </div>
-
+      <div className="flex items-center justify-between gap-3 text-muted-foreground">
         <div className="flex items-center gap-3">
-          {updatedAt && (
-            <span className="flex items-center gap-1" title="Baseado na última importação/atualização real deste cupom">
-              <Clock className="size-3" />
-              Atualizado {formatRelativeTime(updatedAt)}
-            </span>
-          )}
           {expiresAt && (
             <span className="flex items-center gap-1">
               <Calendar className="size-3" />
               {formatDate(expiresAt)}
             </span>
           )}
-          <span>{clicks > 0 ? `${clicks.toLocaleString("pt-BR")} usos` : "Novo"}</span>
+          {updatedAt && (
+            <span className="flex items-center gap-1" title="Baseado na última importação/atualização real deste cupom">
+              <Clock className="size-3" />
+              {formatRelativeTime(updatedAt)}
+            </span>
+          )}
         </div>
+        <span>{clicks > 0 ? `${clicks.toLocaleString("pt-BR")} usos` : "Novo"}</span>
       </div>
     </div>
   );

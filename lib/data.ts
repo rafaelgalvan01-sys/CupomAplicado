@@ -192,16 +192,28 @@ export async function getCoupons(options: { query?: string; limit?: number }): P
   return data as unknown as CouponWithStore[]
 }
 
+// Ordena por cliques agregados dos cupons ativos da loja — proxy automático
+// de popularidade real de uso no site, sem precisar de curadoria manual nem
+// de fonte externa de volume de busca. Lojas sem cliques ainda (recém-
+// importadas) caem pro fim, em ordem alfabética entre si.
+type StoreWithCoupons = Store & { coupons: { clicks: number; active: boolean }[] }
+
 export const getTopStores = unstable_cache(
   async (limit = 8): Promise<Store[]> => {
     const { data, error } = await supabase
       .from('stores')
-      .select('*')
+      .select('*, coupons(clicks, active)')
       .eq('active', true)
-      .order('name')
-      .limit(limit)
     if (error) throw error
-    return data
+
+    const ranked = (data as unknown as StoreWithCoupons[])
+      .map((store) => ({
+        store,
+        totalClicks: store.coupons.filter((c) => c.active).reduce((sum, c) => sum + c.clicks, 0),
+      }))
+      .sort((a, b) => b.totalClicks - a.totalClicks || a.store.name.localeCompare(b.store.name))
+
+    return ranked.slice(0, limit).map((r) => r.store)
   },
   ['top-stores'],
   { revalidate: REVALIDATE_SECONDS }

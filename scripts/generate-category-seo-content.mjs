@@ -14,10 +14,11 @@ if (!GEMINI_API_KEY || !SUPABASE_URL || !SUPABASE_SECRET_KEY) {
 
 // Passe --force pra regerar categorias que já têm conteúdo.
 const FORCE = process.argv.includes("--force");
-const MODEL = "gemini-3.5-flash"; // free tier
+// Ver comentário em scripts/generate-seo-content.mjs — gemini-3.5-flash tinha
+// cota gratuita diária de só 20 req/dia, compartilhada entre os dois scripts.
+// Trocado pra gemini-flash-lite-latest jul/2026.
+const MODEL = "gemini-flash-lite-latest"; // free tier
 
-// Mesmo limite/intervalo usado em generate-seo-content.mjs (5 req/min
-// confirmado via erro 429 real da API).
 const REQUEST_INTERVAL_MS = 13000;
 const MAX_ATTEMPTS_ON_RATE_LIMIT = 3;
 const RATE_LIMIT_BACKOFF_MS = 20000;
