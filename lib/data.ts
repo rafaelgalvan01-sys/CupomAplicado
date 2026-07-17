@@ -1,7 +1,7 @@
 import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
 import { supabase } from './supabase'
-import type { Store, Coupon, CouponWithStore, Category } from './types'
+import type { Store, Coupon, CouponWithStore, Category, Guide } from './types'
 
 // !inner garante que cupons de lojas inativas (ou bloqueadas por RLS) somem
 // da lista, em vez de aparecer com "loja" vazia.
@@ -80,6 +80,70 @@ export const getCategoryBySlug = cache(
       return data
     },
     ['category-by-slug'],
+    { revalidate: REVALIDATE_SECONDS }
+  )
+)
+
+// PGRST205 = tabela ainda não existe (mesmo raciocínio do fallback de 42703
+// em getSitemapStores, mas pra tabela nova em vez de coluna nova) — cobre a
+// janela entre o deploy deste código e a migração 0010 rodar no Supabase,
+// pra não derrubar sitemap/listagem. Confirmado ao vivo: o PostgREST (API
+// REST da Supabase) intercepta "tabela não existe" com o código próprio dele
+// (PGRST205, "Could not find the table ... in the schema cache") ANTES de
+// chegar no Postgres — não é o 42P01 (undefined_table) cru do Postgres.
+function isMissingRelation(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === 'PGRST205'
+}
+
+// Só guias com intro preenchido (conteúdo já gerado) — os demais ainda estão
+// pendentes de geração e não são exibidos nem indexados.
+export const getGuides = unstable_cache(
+  async (): Promise<Guide[]> => {
+    const { data, error } = await supabase
+      .from('guides')
+      .select('*')
+      .not('intro', 'is', null)
+      .order('title')
+    if (error) {
+      if (isMissingRelation(error)) return []
+      throw error
+    }
+    return data
+  },
+  ['guides'],
+  { revalidate: REVALIDATE_SECONDS }
+)
+
+// Todos os slugs (com ou sem conteúdo ainda) — usado só pra
+// generateStaticParams; a própria página trata o caso de conteúdo pendente.
+export const getGuideSlugs = unstable_cache(
+  async (): Promise<{ slug: string }[]> => {
+    const { data, error } = await supabase.from('guides').select('slug')
+    if (error) {
+      if (isMissingRelation(error)) return []
+      throw error
+    }
+    return data
+  },
+  ['guide-slugs'],
+  { revalidate: REVALIDATE_SECONDS }
+)
+
+export const getGuideBySlug = cache(
+  unstable_cache(
+    async (slug: string): Promise<Guide | null> => {
+      const { data, error } = await supabase
+        .from('guides')
+        .select('*')
+        .eq('slug', slug)
+        .maybeSingle()
+      if (error) {
+        if (isMissingRelation(error)) return null
+        throw error
+      }
+      return data
+    },
+    ['guide-by-slug'],
     { revalidate: REVALIDATE_SECONDS }
   )
 )

@@ -12,6 +12,22 @@ export type Category = {
   faq: FaqItem[]
 }
 
+export type GuideSection = {
+  heading: string
+  body: string
+}
+
+export type Guide = {
+  id: string
+  slug: string
+  title: string
+  related_category_slug: string | null
+  intro: string | null
+  sections: GuideSection[]
+  faq: FaqItem[]
+  updated_at: string
+}
+
 export type Store = {
   id: string
   name: string

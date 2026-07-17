@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Search, X, Store, BookOpen, Tags, Menu } from "lucide-react";
+import { Search, X, Store, BookOpen, Tags, Lightbulb, Menu } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,6 +77,10 @@ export function Header() {
             <BookOpen className="size-4" />
             Como usar
           </Button>
+          <Button variant="ghost" size="sm" render={<Link href="/guias" />}>
+            <Lightbulb className="size-4" />
+            Guias
+          </Button>
         </nav>
 
         <div className={cn("flex items-center sm:hidden", mobileSearchOpen ? "flex-1" : "ml-auto")}>
@@ -143,6 +147,10 @@ export function Header() {
                     <SheetClose render={<Link href="/como-usar-cupom-de-desconto" className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors" />}>
                       <BookOpen className="size-5 text-muted-foreground shrink-0" />
                       Como usar cupom de desconto
+                    </SheetClose>
+                    <SheetClose render={<Link href="/guias" className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors" />}>
+                      <Lightbulb className="size-5 text-muted-foreground shrink-0" />
+                      Guias
                     </SheetClose>
                   </nav>
                 </SheetContent>
