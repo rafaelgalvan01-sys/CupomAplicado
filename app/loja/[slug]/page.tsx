@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getStoreBySlug, getCouponsByStore, getStores } from "@/lib/data";
+import Link from "next/link";
+import { getStoreBySlug, getCouponsByStore, getStores, getRelatedStores } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
+import { StoreCard } from "@/components/StoreCard";
 import { JsonLd } from "@/components/JsonLd";
 import { SITE_URL } from "@/lib/site";
 import { truncateText, formatRelativeTime } from "@/lib/utils";
@@ -67,7 +69,10 @@ export default async function StorePage({ params }: Props) {
   const store = await getStoreBySlug(slug);
   if (!store) notFound();
 
-  const coupons = await getCouponsByStore(store.id);
+  const [coupons, relatedStores] = await Promise.all([
+    getCouponsByStore(store.id),
+    store.category_id ? getRelatedStores(store.category_id, store.id) : Promise.resolve([]),
+  ]);
 
   // Frescor real (não decorativo): a data mais recente entre os cupons
   // ativos, não uma data fixa — reflete quando essa listagem realmente
@@ -77,14 +82,26 @@ export default async function StorePage({ params }: Props) {
     null
   );
 
+  const category = store.categories ?? null;
+
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Início", item: SITE_URL },
+      ...(category
+        ? [
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: category.name,
+              item: `${SITE_URL}/categoria/${category.slug}`,
+            },
+          ]
+        : []),
       {
         "@type": "ListItem",
-        position: 2,
+        position: category ? 3 : 2,
         name: store.name,
         item: `${SITE_URL}/loja/${store.slug}`,
       },
@@ -129,6 +146,14 @@ export default async function StorePage({ params }: Props) {
           <BreadcrumbItem>
             <BreadcrumbLink href="/">Início</BreadcrumbLink>
           </BreadcrumbItem>
+          {category && (
+            <>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href={`/categoria/${category.slug}`}>{category.name}</BreadcrumbLink>
+              </BreadcrumbItem>
+            </>
+          )}
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbPage>{store.name}</BreadcrumbPage>
@@ -207,6 +232,22 @@ export default async function StorePage({ params }: Props) {
               </AccordionItem>
             ))}
           </Accordion>
+        </section>
+      )}
+
+      {category && relatedStores.length > 0 && (
+        <section className="flex flex-col gap-4 border-t border-border pt-8">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-foreground">Mais lojas de {category.name}</h2>
+            <Link href={`/categoria/${category.slug}`} className="text-xs font-medium text-brand-text hover:underline">
+              Ver todas
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {relatedStores.map((relatedStore) => (
+              <StoreCard key={relatedStore.id} store={relatedStore} />
+            ))}
+          </div>
         </section>
       )}
     </div>

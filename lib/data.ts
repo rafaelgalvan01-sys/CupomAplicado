@@ -106,14 +106,36 @@ export const getStoreBySlug = cache(
     async (slug: string): Promise<Store | null> => {
       const { data, error } = await supabase
         .from('stores')
-        .select('*')
+        .select('*, categories(name, slug)')
         .eq('slug', slug)
         .eq('active', true)
         .maybeSingle()
       if (error) throw error
-      return data
+      return data as unknown as Store | null
     },
     ['store-by-slug'],
+    { revalidate: REVALIDATE_SECONDS }
+  )
+)
+
+// Outras lojas da mesma categoria, pra linkar entre páginas de loja
+// ("lojas parecidas") — ajuda o Google a descobrir/conectar as páginas do
+// site e mantém a pessoa navegando. Loja sem categoria não tem relacionadas.
+export const getRelatedStores = cache(
+  unstable_cache(
+    async (categoryId: string, excludeStoreId: string, limit = 6): Promise<Store[]> => {
+      const { data, error } = await supabase
+        .from('stores')
+        .select('*')
+        .eq('active', true)
+        .eq('category_id', categoryId)
+        .neq('id', excludeStoreId)
+        .order('name')
+        .limit(limit)
+      if (error) throw error
+      return data
+    },
+    ['related-stores'],
     { revalidate: REVALIDATE_SECONDS }
   )
 )
