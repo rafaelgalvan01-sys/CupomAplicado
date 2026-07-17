@@ -70,12 +70,17 @@ const RESPONSE_SCHEMA = {
   required: ["intro", "sections", "faq"],
 };
 
-function buildPrompt(guide, categoryName) {
+function buildPrompt(guide, categoryName, usedQuestions) {
   const contextLine = categoryName
-    ? `Esse guia deve, quando fizer sentido, mencionar de forma natural que o Cupom Aplicado tem cupons de desconto na categoria "${categoryName}" — sem forçar a menção em toda seção.`
-    : `Esse guia é sobre um assunto geral de economia/cupons, não preso a uma categoria de produto específica.`;
+    ? `Esse guia é sobre a categoria "${categoryName}", mas NÃO cite o nome "Cupom Aplicado" nem faça qualquer menção promocional à plataforma em nenhum momento do texto — nem na abertura, nem nas seções, nem no FAQ. A página já mostra um link pra categoria separadamente; o texto deve ser 100% informativo, sem citar o site.`
+    : `Esse guia é sobre um assunto geral de economia/cupons, não preso a uma categoria de produto específica. NÃO cite o nome "Cupom Aplicado" nem faça qualquer menção promocional à plataforma em nenhum momento do texto — o texto deve ser 100% informativo.`;
 
-  return `Você escreve conteúdo editorial para o site de cupons "Cupom Aplicado". O objetivo desse texto NÃO é falar de uma loja específica — é ajudar alguém que ainda está decidindo o que/como comprar, antes de escolher onde.
+  const avoidQuestionsBlock =
+    usedQuestions.length > 0
+      ? `\n\nOutros guias do site já usaram estas perguntas de FAQ — NÃO repita nenhuma delas nem crie uma pergunta muito parecida (mesmo assunto, palavras diferentes):\n${usedQuestions.map((q) => `- ${q}`).join("\n")}`
+      : "";
+
+  return `Você escreve conteúdo editorial para um site de cupons. O objetivo desse texto NÃO é falar de uma loja específica nem promover o site — é ajudar alguém que ainda está decidindo o que/como comprar, antes de escolher onde, com conteúdo puramente informativo.
 
 Título do guia: "${guide.title}"
 ${contextLine}
@@ -83,7 +88,7 @@ ${contextLine}
 Escreva:
 1. Um parágrafo de abertura (60-100 palavras) que já responde a essência do título logo na primeira frase.
 2. Entre 3 e 5 seções, cada uma com um subtítulo curto e um parágrafo próprio, cobrindo aspectos práticos e diferentes do tema (não repita a mesma ideia em seções diferentes).
-3. Entre 4 e 5 perguntas frequentes sobre o tema do guia, cada resposta começando pela resposta direta em si, sem enrolação antes.
+3. Entre 4 e 5 perguntas frequentes sobre o tema do guia, específicas o suficiente pra não se confundir com o tema de outro guia, cada resposta começando pela resposta direta em si, sem enrolação antes.${avoidQuestionsBlock}
 
 Tom natural, direto, sem promessas exageradas, sem inventar números/preços/percentuais específicos que não foram dados. Responda apenas com o JSON pedido.`;
 }
@@ -92,8 +97,8 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function generateForGuide(guide, categoryName) {
-  const prompt = buildPrompt(guide, categoryName);
+async function generateForGuide(guide, categoryName, usedQuestions) {
+  const prompt = buildPrompt(guide, categoryName, usedQuestions);
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS_ON_RATE_LIMIT; attempt++) {
     try {
@@ -147,11 +152,16 @@ async function main() {
 
   let done = 0;
   let failed = 0;
+  // Acumula as perguntas de FAQ já usadas nesta rodada pra evitar pergunta
+  // repetida/quase-idêntica entre guias diferentes (achado real jul/2026:
+  // "Como saber se um cupom de desconto ainda é válido?" saiu igual em dois
+  // guias distintos na primeira geração).
+  const usedQuestions = [];
 
   for (const guide of guides) {
     try {
       const categoryName = await fetchCategoryName(guide.related_category_slug);
-      const { intro, sections, faq } = await generateForGuide(guide, categoryName);
+      const { intro, sections, faq } = await generateForGuide(guide, categoryName, usedQuestions);
 
       const { error: updateError } = await supabase
         .from("guides")
@@ -160,6 +170,7 @@ async function main() {
 
       if (updateError) throw updateError;
 
+      usedQuestions.push(...faq.map((item) => item.question));
       done += 1;
       console.log(`[${done}/${guides.length}] OK — ${guide.title}`);
     } catch (err) {
