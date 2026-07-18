@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getStoreBySlug, getCouponsByStore, getStores, getRelatedStores } from "@/lib/data";
+import { getStoreBySlug, getCouponsByStore, getStores, getRelatedStores, getGuideByCategorySlug } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
 import { StoreCard } from "@/components/StoreCard";
 import { JsonLd } from "@/components/JsonLd";
@@ -69,9 +69,10 @@ export default async function StorePage({ params }: Props) {
   const store = await getStoreBySlug(slug);
   if (!store) notFound();
 
-  const [coupons, relatedStores] = await Promise.all([
+  const [coupons, relatedStores, relatedGuide] = await Promise.all([
     getCouponsByStore(store.id),
     store.category_id ? getRelatedStores(store.category_id, store.id) : Promise.resolve([]),
+    store.categories?.slug ? getGuideByCategorySlug(store.categories.slug) : Promise.resolve(null),
   ]);
 
   // Frescor real (não decorativo): a data mais recente entre os cupons
@@ -202,6 +203,16 @@ export default async function StorePage({ params }: Props) {
           </div>
         )}
       </section>
+
+      {relatedGuide && (
+        <Link
+          href={`/guias/${relatedGuide.slug}`}
+          className="flex items-center justify-between gap-3 rounded-xl border border-brand/22 bg-brand/10 px-4 py-3 text-sm font-medium text-brand-text transition-colors hover:bg-brand/15"
+        >
+          Leia o guia: {relatedGuide.title}
+          <span aria-hidden>→</span>
+        </Link>
+      )}
 
       {store.seo_description && (
         <section className="flex flex-col gap-3 border-t border-border pt-8">

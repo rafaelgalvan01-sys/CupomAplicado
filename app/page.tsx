@@ -126,10 +126,22 @@ export default async function Home({ searchParams }: Props) {
     })),
   };
 
+  const featuredListJsonLd = featured.length > 0 && {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: featured.map((coupon, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: coupon.title,
+      url: `${SITE_URL}/loja/${coupon.stores?.slug ?? ""}`,
+    })),
+  };
+
   return (
     <div className="flex flex-col gap-8">
       <JsonLd data={websiteJsonLd} />
       <JsonLd data={faqJsonLd} />
+      {featuredListJsonLd && <JsonLd data={featuredListJsonLd} />}
       {couponsListJsonLd && <JsonLd data={couponsListJsonLd} />}
 
       <section className="relative isolate flex flex-col items-center gap-2 overflow-hidden py-6 text-center sm:py-10">
