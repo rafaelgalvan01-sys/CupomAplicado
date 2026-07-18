@@ -241,13 +241,13 @@ export const getFeaturedCoupons = unstable_cache(
 // por termo livre fica de fora do cache: geraria uma entrada por termo
 // digitado, sem ganho real, já que o usuário espera um resultado fresco.
 const getCouponsCached = unstable_cache(
-  async (limit: number): Promise<CouponWithStore[]> => {
+  async (limit: number, offset: number): Promise<CouponWithStore[]> => {
     const { data, error } = await supabase
       .from('coupons')
       .select(COUPON_WITH_STORE_SELECT)
       .eq('active', true)
       .order('created_at', { ascending: false })
-      .limit(limit)
+      .range(offset, offset + limit - 1)
     if (error) throw error
     return data as unknown as CouponWithStore[]
   },
@@ -255,11 +255,14 @@ const getCouponsCached = unstable_cache(
   { revalidate: REVALIDATE_SECONDS }
 )
 
-export async function getCoupons(options: { query?: string; limit?: number }): Promise<CouponWithStore[]> {
-  const { query, limit = 60 } = options
+export const COUPONS_PAGE_SIZE = 60
+
+export async function getCoupons(options: { query?: string; limit?: number; page?: number }): Promise<CouponWithStore[]> {
+  const { query, limit = COUPONS_PAGE_SIZE, page = 1 } = options
+  const offset = (Math.max(page, 1) - 1) * limit
   const term = query?.trim().replace(/[,()%]/g, '')
 
-  if (!term) return getCouponsCached(limit)
+  if (!term) return getCouponsCached(limit, offset)
 
   const { data: matchingStores } = await supabase.from('stores').select('id').ilike('name', `%${term}%`)
   const storeIds = (matchingStores ?? []).map((s) => s.id)
@@ -273,9 +276,32 @@ export async function getCoupons(options: { query?: string; limit?: number }): P
     .eq('active', true)
     .or(orParts.join(','))
     .order('created_at', { ascending: false })
-    .limit(limit)
+    .range(offset, offset + limit - 1)
   if (error) throw error
   return data as unknown as CouponWithStore[]
+}
+
+// Total de cupons pra calcular quantas páginas mostrar na paginação — mesmo
+// filtro de getCoupons, mas só a contagem (count: 'exact', head: true não
+// baixa as linhas). Busca por termo livre fica de fora do cache pelo mesmo
+// motivo de getCoupons.
+export async function getCouponsCount(query?: string): Promise<number> {
+  const term = query?.trim().replace(/[,()%]/g, '')
+  if (!term) return getActiveCouponsCount()
+
+  const { data: matchingStores } = await supabase.from('stores').select('id').ilike('name', `%${term}%`)
+  const storeIds = (matchingStores ?? []).map((s) => s.id)
+
+  const orParts = [`title.ilike.%${term}%`]
+  if (storeIds.length > 0) orParts.push(`store_id.in.(${storeIds.join(',')})`)
+
+  const { count, error } = await supabase
+    .from('coupons')
+    .select('id', { count: 'exact', head: true })
+    .eq('active', true)
+    .or(orParts.join(','))
+  if (error) throw error
+  return count ?? 0
 }
 
 // Ordena por cliques agregados dos cupons ativos da loja — proxy automático

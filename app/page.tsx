@@ -4,8 +4,10 @@ import { Star } from "lucide-react";
 import {
   getFeaturedCoupons,
   getCoupons,
+  getCouponsCount,
   getTopStores,
   getActiveCouponsCount,
+  COUPONS_PAGE_SIZE,
 } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
 import { StoreCarousel } from "@/components/StoreCarousel";
@@ -18,6 +20,7 @@ import {
   AccordionTrigger,
   AccordionPanel,
 } from "@/components/ui/accordion";
+import { Pagination } from "@/components/ui/pagination";
 import { SITE_URL } from "@/lib/site";
 import type { CouponWithStore } from "@/lib/types";
 
@@ -45,15 +48,20 @@ const HOME_FAQ = [
 ];
 
 type Props = {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 };
 
 // Buscas internas não têm conteúdo próprio pra indexar (é a mesma listagem
 // filtrada) — a página "real" pro Google é sempre a home sem parâmetros.
+// Páginas seguintes (?page=2, 3...) são conteúdo genuinamente diferente da
+// página 1 (outros cupons), então continuam indexáveis, cada uma com seu
+// próprio canonical — só busca (?q=) fica de fora do índice.
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const { q } = await searchParams;
+  const { q, page } = await searchParams;
+  const pageNumber = Number(page) || 1;
+  const canonical = pageNumber > 1 ? `/?page=${pageNumber}` : "/";
   return {
-    alternates: { canonical: "/" },
+    alternates: { canonical },
     ...(q && { robots: { index: false, follow: true } }),
   };
 }
@@ -67,14 +75,17 @@ function toStoreProp(coupon: CouponWithStore) {
 }
 
 export default async function Home({ searchParams }: Props) {
-  const { q } = await searchParams;
+  const { q, page } = await searchParams;
+  const currentPage = Math.max(Number(page) || 1, 1);
 
-  const [featured, coupons, topStores, activeCount] = await Promise.all([
-    q ? Promise.resolve([]) : getFeaturedCoupons(),
-    getCoupons({ query: q }),
+  const [featured, coupons, couponsTotal, topStores, activeCount] = await Promise.all([
+    q || currentPage > 1 ? Promise.resolve([]) : getFeaturedCoupons(),
+    getCoupons({ query: q, page: currentPage }),
+    getCouponsCount(q),
     getTopStores(10),
     getActiveCouponsCount(),
   ]);
+  const totalPages = Math.max(Math.ceil(couponsTotal / COUPONS_PAGE_SIZE), 1);
 
   const websiteJsonLd = {
     "@context": "https://schema.org",
@@ -166,6 +177,7 @@ export default async function Home({ searchParams }: Props) {
               ))}
             </div>
           )}
+          <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/" params={{ q }} />
         </section>
 
         <section className="flex flex-col gap-3 border-t border-border pt-8">
