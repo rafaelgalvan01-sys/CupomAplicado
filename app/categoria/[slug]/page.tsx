@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCategories, getCategoryBySlug, getStoresByCategory } from "@/lib/data";
+import { getCategories, getCategoryBySlug, getStoresByCategory, getGuideByCategorySlug } from "@/lib/data";
 import { StoreCard } from "@/components/StoreCard";
 import { JsonLd } from "@/components/JsonLd";
 import { SITE_URL } from "@/lib/site";
@@ -54,9 +55,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CategoriaPage({ params }: Props) {
   const { slug } = await params;
-  const [category, stores] = await Promise.all([
+  const [category, stores, relatedGuide] = await Promise.all([
     getCategoryBySlug(slug),
     getStoresByCategory(slug),
+    getGuideByCategorySlug(slug),
   ]);
 
   if (!category) notFound();
@@ -136,6 +138,16 @@ export default async function CategoriaPage({ params }: Props) {
           </div>
         )}
       </section>
+
+      {relatedGuide && (
+        <Link
+          href={`/guias/${relatedGuide.slug}`}
+          className="flex items-center justify-between gap-3 rounded-xl border border-brand/22 bg-brand/10 px-4 py-3 text-sm font-medium text-brand-text transition-colors hover:bg-brand/15"
+        >
+          Leia o guia: {relatedGuide.title}
+          <span aria-hidden>→</span>
+        </Link>
+      )}
 
       {category.seo_description && (
         <section className="flex flex-col gap-3 border-t border-border pt-8">

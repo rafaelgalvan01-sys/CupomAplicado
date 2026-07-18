@@ -148,6 +148,30 @@ export const getGuideBySlug = cache(
   )
 )
 
+// Caminho inverso de guide.related_category_slug — pra página de categoria
+// linkar de volta pro guia que fala dela, quando existir um com conteúdo já
+// gerado.
+export const getGuideByCategorySlug = cache(
+  unstable_cache(
+    async (categorySlug: string): Promise<Guide | null> => {
+      const { data, error } = await supabase
+        .from('guides')
+        .select('*')
+        .eq('related_category_slug', categorySlug)
+        .not('intro', 'is', null)
+        .limit(1)
+        .maybeSingle()
+      if (error) {
+        if (isMissingRelation(error)) return null
+        throw error
+      }
+      return data
+    },
+    ['guide-by-category-slug'],
+    { revalidate: REVALIDATE_SECONDS }
+  )
+)
+
 // cache() deduplica a chamada entre generateMetadata e a página em si, que
 // pedem os mesmos dados dentro da mesma requisição; unstable_cache guarda
 // entre requisições diferentes.

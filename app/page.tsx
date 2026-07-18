@@ -112,10 +112,25 @@ export default async function Home({ searchParams }: Props) {
     })),
   };
 
+  // Cupom não tem página própria ainda, então cada item da lista aponta pra
+  // página da loja — mesmo padrão de fallback já usado noutras ItemList do
+  // site quando a entidade não tem URL individual.
+  const couponsListJsonLd = coupons.length > 0 && {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: coupons.map((coupon, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: coupon.title,
+      url: `${SITE_URL}/loja/${coupon.stores?.slug ?? ""}`,
+    })),
+  };
+
   return (
     <div className="flex flex-col gap-8">
       <JsonLd data={websiteJsonLd} />
       <JsonLd data={faqJsonLd} />
+      {couponsListJsonLd && <JsonLd data={couponsListJsonLd} />}
 
       <section className="relative isolate flex flex-col items-center gap-2 overflow-hidden py-6 text-center sm:py-10">
         <HeroBackground />
