@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Search, Copy, ShoppingCart } from "lucide-react";
 import { JsonLd } from "@/components/JsonLd";
 import { SITE_URL } from "@/lib/site";
@@ -185,6 +186,20 @@ export default function ComoUsarCupomDeDescontoPage() {
           quem já tentou usar — um jeito rápido de saber se vale a pena tentar antes de ir até o
           checkout da loja.
         </p>
+        <div className="flex max-w-2xl flex-col gap-2 sm:flex-row">
+          <Link
+            href="/guias/como-funciona-um-cupom-de-desconto"
+            className="flex-1 rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+          >
+            Quer entender por trás do código? Veja como um cupom funciona de verdade →
+          </Link>
+          <Link
+            href="/guias/erros-comuns-que-fazem-cupom-nao-funcionar"
+            className="flex-1 rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+          >
+            Cupom não funcionou? Veja os erros mais comuns →
+          </Link>
+        </div>
       </section>
 
       <section className="flex flex-col gap-3 border-t border-border pt-8">

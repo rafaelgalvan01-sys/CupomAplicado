@@ -13,7 +13,7 @@ export function GuideCard({ guide }: { guide: Guide }) {
             <div className="relative mb-2 aspect-video w-full overflow-hidden rounded-lg">
               <Image
                 src={guide.image_url}
-                alt=""
+                alt={guide.image_alt ?? ""}
                 fill
                 sizes="(max-width: 768px) 100vw, 33vw"
                 className="object-cover"

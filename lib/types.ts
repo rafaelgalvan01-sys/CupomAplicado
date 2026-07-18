@@ -22,12 +22,16 @@ export type Guide = {
   slug: string
   title: string
   related_category_slug: string | null
+  related_link_href: string | null
+  related_link_label: string | null
   intro: string | null
   sections: GuideSection[]
   faq: FaqItem[]
   image_url: string | null
+  image_alt: string | null
   photographer_name: string | null
   photographer_url: string | null
+  created_at: string
   updated_at: string
 }
 

@@ -86,9 +86,36 @@ export default async function GuiaPage({ params }: Props) {
     })),
   };
 
+  // Article JSON-LD: avisa o Google que isso é conteúdo editorial (com
+  // imagem e datas), não só uma lista de perguntas — habilita elegibilidade
+  // pra lugares como o Google Discover.
+  const articleJsonLd = guide.intro && {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: guide.title,
+    description: guide.intro,
+    ...(guide.image_url && { image: [guide.image_url] }),
+    datePublished: guide.created_at,
+    dateModified: guide.updated_at,
+    author: { "@type": "Organization", name: "Cupom Aplicado" },
+    publisher: { "@type": "Organization", name: "Cupom Aplicado" },
+    mainEntityOfPage: `${SITE_URL}/guias/${slug}`,
+  };
+
+  // Toda página de guia precisa de pelo menos um link pra dentro do site —
+  // categoria relacionada tem prioridade; sem categoria, cai no link
+  // específico definido na migração (ex: cruzar com /como-usar-cupom-de-
+  // desconto pra guias com tema parecido) ou some se nenhum dos dois existir.
+  const relatedLink = relatedCategory
+    ? { href: `/categoria/${relatedCategory.slug}`, label: `Ver cupons de ${relatedCategory.name}` }
+    : guide.related_link_href && guide.related_link_label
+      ? { href: guide.related_link_href, label: guide.related_link_label }
+      : null;
+
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-8 flex flex-col gap-8">
       <JsonLd data={breadcrumbJsonLd} />
+      {articleJsonLd && <JsonLd data={articleJsonLd} />}
       {faqJsonLd && <JsonLd data={faqJsonLd} />}
 
       <Breadcrumb>
@@ -114,7 +141,7 @@ export default async function GuiaPage({ params }: Props) {
           <div className="relative aspect-video w-full overflow-hidden rounded-xl">
             <Image
               src={guide.image_url}
-              alt=""
+              alt={guide.image_alt ?? ""}
               fill
               sizes="(max-width: 768px) 100vw, 768px"
               priority
@@ -143,12 +170,12 @@ export default async function GuiaPage({ params }: Props) {
         <>
           <p className="whitespace-pre-line text-lg text-muted-foreground">{guide.intro}</p>
 
-          {relatedCategory && (
+          {relatedLink && (
             <Link
-              href={`/categoria/${relatedCategory.slug}`}
+              href={relatedLink.href}
               className="flex items-center justify-between gap-3 rounded-xl border border-brand/22 bg-brand/10 px-4 py-3 text-sm font-medium text-brand-text transition-colors hover:bg-brand/15"
             >
-              Ver cupons de {relatedCategory.name}
+              {relatedLink.label}
               <span aria-hidden>→</span>
             </Link>
           )}
