@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getGuideBySlug, getGuideSlugs, getCategoryBySlug } from "@/lib/data";
@@ -43,7 +44,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: `/guias/${slug}` },
-    openGraph: { title, description, url: `${SITE_URL}/guias/${slug}` },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/guias/${slug}`,
+      ...(guide.image_url && { images: [guide.image_url] }),
+    },
     // Guia ainda sem conteúdo gerado (ver scripts/generate-guide-content.mjs)
     // — mesmo tratamento já usado pra categoria/loja vazia (ver AGENTS.md).
     ...(!guide.intro && { robots: { index: false, follow: true } }),
@@ -102,6 +108,34 @@ export default async function GuiaPage({ params }: Props) {
       </Breadcrumb>
 
       <h1 className="text-3xl font-semibold tracking-tight text-foreground">{guide.title}</h1>
+
+      {guide.image_url && (
+        <figure className="flex flex-col gap-1.5">
+          <div className="relative aspect-video w-full overflow-hidden rounded-xl">
+            <Image
+              src={guide.image_url}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 100vw, 768px"
+              priority
+              className="object-cover"
+            />
+          </div>
+          {guide.photographer_name && (
+            <figcaption className="text-xs text-muted-foreground">
+              Foto:{" "}
+              {guide.photographer_url ? (
+                <a href={guide.photographer_url} target="_blank" rel="noopener noreferrer nofollow" className="hover:underline">
+                  {guide.photographer_name}
+                </a>
+              ) : (
+                guide.photographer_name
+              )}
+              {" "}via Pexels
+            </figcaption>
+          )}
+        </figure>
+      )}
 
       {!guide.intro ? (
         <p className="text-muted-foreground">Esse guia ainda está sendo preparado — volte em breve.</p>

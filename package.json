@@ -9,7 +9,8 @@
     "lint": "eslint",
     "generate-seo-content": "node --env-file=.env.local scripts/generate-seo-content.mjs",
     "generate-category-seo-content": "node --env-file=.env.local scripts/generate-category-seo-content.mjs",
-    "generate-guide-content": "node --env-file=.env.local scripts/generate-guide-content.mjs"
+    "generate-guide-content": "node --env-file=.env.local scripts/generate-guide-content.mjs",
+    "generate-guide-images": "node --env-file=.env.local scripts/generate-guide-images.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

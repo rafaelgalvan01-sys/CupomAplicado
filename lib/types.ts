@@ -25,6 +25,9 @@ export type Guide = {
   intro: string | null
   sections: GuideSection[]
   faq: FaqItem[]
+  image_url: string | null
+  photographer_name: string | null
+  photographer_url: string | null
   updated_at: string
 }
 

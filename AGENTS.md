@@ -23,6 +23,7 @@ Regras fixas, resultado da auditoria de SEO de jul/2026. Aplicar em qualquer pá
 ## Imagens
 
 - A primeira imagem de qualquer grid/lista/carrossel (índice 0, ou as primeiras ~4 num carrossel) leva `priority` no `<Image>`. As demais, não — `priority` em toda imagem derrota o propósito (atrasa o que devia carregar rápido).
+- **Ao adicionar um domínio novo em `images.remotePatterns` (next.config.ts), NUNCA usar o atalho `new URL("https://dominio.com/**")` se as URLs reais desse domínio vêm com querystring** (ex: CDN de banco de imagens tipo Pexels, que sempre anexa `?auto=compress&cs=...`). O atalho `new URL()` seta `search: ""` implicitamente, o que **bloqueia qualquer URL com querystring** — a imagem falha com "hostname not configured" mesmo com o domínio certo na lista, e o erro engana porque parece problema de cache/config não recarregada (não é — reiniciar servidor, limpar `.next`, matar todos os processos node, nada disso resolve, porque o bug está no *valor* do padrão, não em cache). Confirmado ao vivo com as imagens do Pexels (jul/2026): usar o objeto explícito `{ protocol: "https", hostname: "...", pathname: "/**" }` **sem** a chave `search` resolve — omitir `search` é o que libera qualquer querystring (documentado em `node_modules/next/dist/docs/.../image.md`, seção `remotePatterns`). Antes de investigar como problema de cache, sempre conferir primeiro se o padrão foi declarado com `new URL()` E se a URL real tem querystring.
 
 ## Metadata e SEO
 
