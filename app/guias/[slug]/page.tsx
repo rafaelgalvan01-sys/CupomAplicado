@@ -35,7 +35,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const guide = await getGuideBySlug(slug);
   if (!guide) return {};
 
-  const title = `${guide.title} — Cupom Aplicado`;
+  // Título completo (guide.title) fica só no H1 visível na página — a tag
+  // <title> (o que o Google mostra) usa a versão curta (seo_title) quando
+  // existir, pra não passar de ~60 caracteres e ser cortada na busca.
+  const title = `${guide.seo_title ?? guide.title} — Cupom Aplicado`;
   const description = guide.intro?.trim()
     ? truncateText(guide.intro.trim(), 155)
     : `Guia de compra e economia do Cupom Aplicado: ${guide.title}.`;

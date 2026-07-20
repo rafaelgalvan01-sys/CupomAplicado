@@ -21,6 +21,7 @@ export type Guide = {
   id: string
   slug: string
   title: string
+  seo_title: string | null
   related_category_slug: string | null
   related_link_href: string | null
   related_link_label: string | null
