@@ -41,31 +41,24 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/85 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:py-4">
-        {/* Logo + navegação viajam juntas dentro de um único bloco (mesmo
-            gap fixo entre elas, de propósito — são a mesma "unidade":
-            identidade e pra onde ir). A busca é a única outra peça da
-            linha, então o justify-between do container faz o navegador
-            calcular sozinho o espaço entre o bloco e a busca — sem eu fixar
-            um número, e sem sobrar um vão de tamanho variável espalhado por
-            engano em três lugares diferentes (se eu tivesse aplicado
-            justify-between nos três itens soltos, o espaço logo↔nav teria
-            inchado junto com o resto, quebrando esse agrupamento). Antes a
-            busca ficava centralizada no vão entre logo e nav — como a nav é
-            bem mais larga que a logo, esse vão não coincidia com o centro
-            real da tela, e a busca aparecia visivelmente deslocada. Nav e
-            busca também usam o mesmo breakpoint (md) agora — antes a busca
-            aparecia sozinha (sm) numa faixa de largura em que a nav (md) e o
-            menu mobile (sm:hidden) ficavam os dois escondidos ao mesmo
-            tempo. */}
-        <div className="flex items-center gap-3 sm:gap-4">
-          {!mobileSearchOpen && (
-            <Link href="/" className="shrink-0 transition-opacity hover:opacity-80">
-              <Logo />
-            </Link>
-          )}
+      <div className="mx-auto flex max-w-6xl items-center px-4 py-3 sm:py-4">
+        {/* Desktop: logo, itens do menu e busca são todos irmãos de um
+            mesmo container com justify-between — o navegador calcula
+            sozinho o espaço entre CADA um deles (Logo↔Lojas↔Categorias↔
+            Como usar↔Guias↔Busca), sempre igual entre si e ajustado à
+            largura real da tela, sem nenhum valor fixo escolhido à mão em
+            lugar nenhum. O <nav> continua existindo como marco de
+            navegação pra leitor de tela, só que com "display: contents"
+            (a classe `contents`), que tira a caixa dele do layout sem
+            tirar o papel semântico — assim os botões dentro dele
+            participam diretamente da distribuição do container pai,
+            junto com a logo e o formulário de busca. */}
+        <div className="hidden min-w-0 flex-1 items-center justify-between md:flex">
+          <Link href="/" className="shrink-0 transition-opacity hover:opacity-80">
+            <Logo />
+          </Link>
 
-          <nav className="hidden md:flex items-center gap-1.5 shrink-0" aria-label="Navegação principal">
+          <nav className="contents" aria-label="Navegação principal">
             <Button variant="ghost" size="sm" render={<Link href="/lojas" />}>
               <Store className="size-4" />
               Lojas
@@ -83,24 +76,34 @@ export function Header() {
               Guias
             </Button>
           </nav>
+
+          {/* Largura ~35% maior que a original (14rem → 19rem), a pedido. */}
+          <form action="/" method="get" className="group relative w-full max-w-[19rem]">
+            <label htmlFor="header-search" className="sr-only">
+              Buscar cupons ou lojas
+            </label>
+            <Search
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-brand-text opacity-70 transition-opacity group-focus-within:opacity-100"
+            />
+            <Input
+              id="header-search"
+              type="search"
+              name="q"
+              placeholder="Buscar cupom ou loja"
+              className="h-10 rounded-full border-card-border bg-card pl-9 transition-colors hover:border-brand/45"
+            />
+          </form>
         </div>
 
-        <form action="/" method="get" className="group relative hidden w-full max-w-56 md:block">
-          <label htmlFor="header-search" className="sr-only">
-            Buscar cupons ou lojas
-          </label>
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-brand-text opacity-70 transition-opacity group-focus-within:opacity-100"
-          />
-          <Input
-            id="header-search"
-            type="search"
-            name="q"
-            placeholder="Buscar cupom ou loja"
-            className="h-10 rounded-full border-card-border bg-card pl-9 transition-colors hover:border-brand/45"
-          />
-        </form>
+        {/* Mobile: a mesma logo, só que fora do bloco acima (que fica
+            hidden abaixo de md) — senão ela sumiria no celular junto com
+            o resto. */}
+        {!mobileSearchOpen && (
+          <Link href="/" className="shrink-0 transition-opacity hover:opacity-80 md:hidden">
+            <Logo />
+          </Link>
+        )}
 
         <div className={cn("flex items-center md:hidden", mobileSearchOpen ? "flex-1" : "ml-auto")}>
           {mobileSearchOpen ? (
