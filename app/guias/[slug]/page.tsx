@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getGuideBySlug, getGuideSlugs, getCategoryBySlug } from "@/lib/data";
 import { JsonLd } from "@/components/JsonLd";
+import { GuideBody } from "@/components/GuideBody";
 import { SITE_URL } from "@/lib/site";
 import { truncateText } from "@/lib/utils";
 import {
@@ -187,7 +188,9 @@ export default async function GuiaPage({ params }: Props) {
             {guide.sections.map((section) => (
               <section key={section.heading} className="flex flex-col gap-2">
                 <h2 className="text-xl font-semibold text-foreground">{section.heading}</h2>
-                <p className="whitespace-pre-line text-muted-foreground">{section.body}</p>
+                <p className="whitespace-pre-line text-muted-foreground">
+                  <GuideBody text={section.body} />
+                </p>
               </section>
             ))}
           </div>
