@@ -41,42 +41,51 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/85 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-4 sm:py-4">
-        {!mobileSearchOpen && (
-          <Link href="/" className="shrink-0 transition-opacity hover:opacity-80">
-            <Logo />
-          </Link>
-        )}
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:py-4">
+        {/* Logo + navegação viajam juntas dentro de um único bloco (mesmo
+            gap fixo entre elas, de propósito — são a mesma "unidade":
+            identidade e pra onde ir). A busca é a única outra peça da
+            linha, então o justify-between do container faz o navegador
+            calcular sozinho o espaço entre o bloco e a busca — sem eu fixar
+            um número, e sem sobrar um vão de tamanho variável espalhado por
+            engano em três lugares diferentes (se eu tivesse aplicado
+            justify-between nos três itens soltos, o espaço logo↔nav teria
+            inchado junto com o resto, quebrando esse agrupamento). Antes a
+            busca ficava centralizada no vão entre logo e nav — como a nav é
+            bem mais larga que a logo, esse vão não coincidia com o centro
+            real da tela, e a busca aparecia visivelmente deslocada. Nav e
+            busca também usam o mesmo breakpoint (md) agora — antes a busca
+            aparecia sozinha (sm) numa faixa de largura em que a nav (md) e o
+            menu mobile (sm:hidden) ficavam os dois escondidos ao mesmo
+            tempo. */}
+        <div className="flex items-center gap-3 sm:gap-4">
+          {!mobileSearchOpen && (
+            <Link href="/" className="shrink-0 transition-opacity hover:opacity-80">
+              <Logo />
+            </Link>
+          )}
 
-        {/* Logo + navegação ficam juntas à esquerda (identidade e pra onde
-            ir são a mesma "unidade"); a busca é uma ferramenta à parte,
-            ancorada à direita via ml-auto. Antes a busca ficava centralizada
-            no vão entre logo e nav — como a nav é bem mais larga que a logo,
-            esse vão não coincidia com o centro real da tela, e a busca
-            aparecia visivelmente deslocada. Nav e busca também usam o mesmo
-            breakpoint (md) agora — antes a busca aparecia sozinha (sm) numa
-            faixa de largura em que a nav (md) e o menu mobile (sm:hidden)
-            ficavam os dois escondidos ao mesmo tempo. */}
-        <nav className="hidden md:flex items-center gap-0.5 shrink-0" aria-label="Navegação principal">
-          <Button variant="ghost" size="sm" render={<Link href="/lojas" />}>
-            <Store className="size-4" />
-            Lojas
-          </Button>
-          <Button variant="ghost" size="sm" render={<Link href="/categorias" />}>
-            <Tags className="size-4" />
-            Categorias
-          </Button>
-          <Button variant="ghost" size="sm" render={<Link href="/como-usar-cupom-de-desconto" />}>
-            <BookOpen className="size-4" />
-            Como usar
-          </Button>
-          <Button variant="ghost" size="sm" render={<Link href="/guias" />}>
-            <Lightbulb className="size-4" />
-            Guias
-          </Button>
-        </nav>
+          <nav className="hidden md:flex items-center gap-1.5 shrink-0" aria-label="Navegação principal">
+            <Button variant="ghost" size="sm" render={<Link href="/lojas" />}>
+              <Store className="size-4" />
+              Lojas
+            </Button>
+            <Button variant="ghost" size="sm" render={<Link href="/categorias" />}>
+              <Tags className="size-4" />
+              Categorias
+            </Button>
+            <Button variant="ghost" size="sm" render={<Link href="/como-usar-cupom-de-desconto" />}>
+              <BookOpen className="size-4" />
+              Como usar
+            </Button>
+            <Button variant="ghost" size="sm" render={<Link href="/guias" />}>
+              <Lightbulb className="size-4" />
+              Guias
+            </Button>
+          </nav>
+        </div>
 
-        <form action="/" method="get" className="group relative ml-auto hidden w-full max-w-56 md:block">
+        <form action="/" method="get" className="group relative hidden w-full max-w-56 md:block">
           <label htmlFor="header-search" className="sr-only">
             Buscar cupons ou lojas
           </label>
