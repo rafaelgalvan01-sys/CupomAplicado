@@ -48,22 +48,15 @@ export function Header() {
           </Link>
         )}
 
-        <div className="hidden sm:flex flex-1 justify-center">
-          <form action="/" method="get" className="relative max-w-sm w-full">
-            <label htmlFor="header-search" className="sr-only">
-              Buscar cupons ou lojas
-            </label>
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              id="header-search"
-              type="search"
-              name="q"
-              placeholder="Buscar cupons, lojas..."
-              className="pl-9"
-            />
-          </form>
-        </div>
-
+        {/* Logo + navegação ficam juntas à esquerda (identidade e pra onde
+            ir são a mesma "unidade"); a busca é uma ferramenta à parte,
+            ancorada à direita via ml-auto. Antes a busca ficava centralizada
+            no vão entre logo e nav — como a nav é bem mais larga que a logo,
+            esse vão não coincidia com o centro real da tela, e a busca
+            aparecia visivelmente deslocada. Nav e busca também usam o mesmo
+            breakpoint (md) agora — antes a busca aparecia sozinha (sm) numa
+            faixa de largura em que a nav (md) e o menu mobile (sm:hidden)
+            ficavam os dois escondidos ao mesmo tempo. */}
         <nav className="hidden md:flex items-center gap-0.5 shrink-0" aria-label="Navegação principal">
           <Button variant="ghost" size="sm" render={<Link href="/lojas" />}>
             <Store className="size-4" />
@@ -83,20 +76,40 @@ export function Header() {
           </Button>
         </nav>
 
-        <div className={cn("flex items-center sm:hidden", mobileSearchOpen ? "flex-1" : "ml-auto")}>
+        <form action="/" method="get" className="group relative ml-auto hidden w-full max-w-56 md:block">
+          <label htmlFor="header-search" className="sr-only">
+            Buscar cupons ou lojas
+          </label>
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-brand-text opacity-70 transition-opacity group-focus-within:opacity-100"
+          />
+          <Input
+            id="header-search"
+            type="search"
+            name="q"
+            placeholder="Buscar cupom ou loja"
+            className="h-10 rounded-full border-card-border bg-card pl-9 transition-colors hover:border-brand/45"
+          />
+        </form>
+
+        <div className={cn("flex items-center md:hidden", mobileSearchOpen ? "flex-1" : "ml-auto")}>
           {mobileSearchOpen ? (
-            <form action="/" method="get" className="relative flex w-full items-center gap-1">
+            <form action="/" method="get" className="group relative flex w-full items-center gap-1">
               <label htmlFor="header-search-mobile" className="sr-only">
                 Buscar cupons ou lojas
               </label>
-              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Search
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-brand-text opacity-70 transition-opacity group-focus-within:opacity-100"
+              />
               <Input
                 id="header-search-mobile"
                 type="search"
                 name="q"
-                placeholder="Buscar cupons, lojas..."
+                placeholder="Buscar cupom ou loja"
                 autoFocus
-                className="pl-9"
+                className="h-10 rounded-full border-card-border bg-card pl-9"
                 onKeyDown={(event) => {
                   if (event.key === "Escape") closeMobileSearch();
                 }}
@@ -123,13 +136,13 @@ export function Header() {
                 aria-controls="header-search-mobile"
                 onClick={() => setMobileSearchOpen(true)}
               >
-                <Search className="size-4" />
+                <Search aria-hidden="true" className="size-4" />
               </Button>
               <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
                 <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Abrir menu" />}>
                   <Menu className="size-4" />
                 </SheetTrigger>
-                <SheetContent side="right" className="w-64 sm:hidden">
+                <SheetContent side="right" className="w-64 md:hidden">
                   <SheetHeader className="border-b border-border px-5 py-4">
                     <Link href="/" onClick={closeMenu}>
                       <Logo />
