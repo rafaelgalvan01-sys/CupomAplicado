@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
+import { AnalyticsGate } from "@/components/AnalyticsGate";
 import { Toaster } from "@/components/ui/sonner";
 import { SITE_URL } from "@/lib/site";
 
@@ -80,7 +80,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
-        <Analytics />
+        <AnalyticsGate />
         <Toaster />
       </body>
     </html>
