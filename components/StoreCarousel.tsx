@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Store } from "@/lib/types";
 import { avatarColorFor } from "@/lib/badge-colors";
+import { useHorizontalScroll } from "@/lib/use-horizontal-scroll";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -17,34 +17,10 @@ type Props = {
 };
 
 export function StoreCarousel({ stores, title, viewAllHref }: Props) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  function updateScrollState() {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
-  }
-
-  useEffect(() => {
-    updateScrollState();
-    const el = scrollRef.current;
-    if (!el) return;
-    el.addEventListener("scroll", updateScrollState, { passive: true });
-    window.addEventListener("resize", updateScrollState);
-    return () => {
-      el.removeEventListener("scroll", updateScrollState);
-      window.removeEventListener("resize", updateScrollState);
-    };
-  }, [stores]);
+  const { scrollRef, canScrollLeft, canScrollRight, scroll } =
+    useHorizontalScroll<HTMLDivElement>(stores);
 
   if (stores.length === 0) return null;
-
-  function scroll(direction: 1 | -1) {
-    scrollRef.current?.scrollBy({ left: direction * 320, behavior: "smooth" });
-  }
 
   return (
     <section data-slot="store-carousel" className="flex flex-col gap-4">
@@ -59,7 +35,7 @@ export function StoreCarousel({ stores, title, viewAllHref }: Props) {
               type="button"
               variant="outline"
               size="icon"
-              onClick={() => scroll(-1)}
+              onClick={() => scroll(-1, 320)}
               aria-label="Anterior"
               disabled={!canScrollLeft}
               className="size-7 rounded-full"
@@ -70,7 +46,7 @@ export function StoreCarousel({ stores, title, viewAllHref }: Props) {
               type="button"
               variant="outline"
               size="icon"
-              onClick={() => scroll(1)}
+              onClick={() => scroll(1, 320)}
               aria-label="Próximo"
               disabled={!canScrollRight}
               className="size-7 rounded-full"
