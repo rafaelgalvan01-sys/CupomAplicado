@@ -48,6 +48,37 @@ export const getSitemapCategories = unstable_cache(
   { revalidate: REVALIDATE_SECONDS }
 )
 
+// Categorias que têm pelo menos uma loja ativa — usado na home pra linkar
+// direto pras páginas de categoria. Antes, /categoria/[slug] só era alcançável
+// via /categorias (2 saltos da home); expor os links na própria home encurta
+// esse caminho e ajuda o Google a rastrear/priorizar essas páginas (várias
+// estavam em "Detectada, mas não indexada" por serem fundas demais). Mesmo
+// join !inner + filtro de loja ativa do getSitemapCategories: categoria vazia
+// vira noindex na própria página, então nunca deve virar link de navegação.
+export const getHomeCategories = unstable_cache(
+  async (): Promise<Pick<Category, 'id' | 'name' | 'slug'>[]> => {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('id, name, slug, stores!inner(id)')
+      .eq('stores.active', true)
+      .order('name')
+    if (error) throw error
+
+    // O !inner traz uma linha por loja, duplicando a categoria — deduplica por
+    // id preservando a ordem alfabética já aplicada pelo Postgres.
+    const seen = new Set<string>()
+    const unique: Pick<Category, 'id' | 'name' | 'slug'>[] = []
+    for (const row of data as unknown as Category[]) {
+      if (seen.has(row.id)) continue
+      seen.add(row.id)
+      unique.push({ id: row.id, name: row.name, slug: row.slug })
+    }
+    return unique
+  },
+  ['home-categories'],
+  { revalidate: REVALIDATE_SECONDS }
+)
+
 // Retorna lojas de uma categoria filtrando pelo slug da categoria.
 // O join com categories faz o inner join (só lojas com categoria compatível)
 // e já traz os dados da categoria junto.

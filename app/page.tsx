@@ -7,10 +7,12 @@ import {
   getCouponsCount,
   getTopStores,
   getActiveCouponsCount,
+  getHomeCategories,
   COUPONS_PAGE_SIZE,
 } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
 import { StoreCarousel } from "@/components/StoreCarousel";
+import { HomeCategories } from "@/components/HomeCategories";
 import { HeroBackground } from "@/components/HeroBackground";
 import { JsonLd } from "@/components/JsonLd";
 import iconMark from "@/app/icon.png";
@@ -78,12 +80,13 @@ export default async function Home({ searchParams }: Props) {
   const { q, page } = await searchParams;
   const currentPage = Math.max(Number(page) || 1, 1);
 
-  const [featured, coupons, couponsTotal, topStores, activeCount] = await Promise.all([
+  const [featured, coupons, couponsTotal, topStores, activeCount, categories] = await Promise.all([
     q || currentPage > 1 ? Promise.resolve([]) : getFeaturedCoupons(),
     getCoupons({ query: q, page: currentPage }),
     getCouponsCount(q),
     getTopStores(10),
     getActiveCouponsCount(),
+    getHomeCategories(),
   ]);
   const totalPages = Math.max(Math.ceil(couponsTotal / COUPONS_PAGE_SIZE), 1);
 
@@ -166,6 +169,8 @@ export default async function Home({ searchParams }: Props) {
 
       <div className="mx-auto w-full max-w-6xl px-4 pb-14 flex flex-col gap-8">
         <StoreCarousel stores={topStores} title="Lojas parceiras" viewAllHref="/lojas" />
+
+        <HomeCategories categories={categories} />
 
         {featured.length > 0 && (
           <section className="flex flex-col gap-4">
