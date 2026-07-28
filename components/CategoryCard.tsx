@@ -1,19 +1,7 @@
 import Link from "next/link";
 import type { Category } from "@/lib/types";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-
-const categoryIcons: Record<string, string> = {
-  moda: "👗",
-  eletronicos: "💻",
-  eletrodomesticos: "🏠",
-  "casa-e-decoracao": "🛋️",
-  beleza: "💄",
-  esportes: "🏋️",
-  brinquedos: "🧸",
-  bebidas: "🍷",
-  automotivo: "🚗",
-  viagem: "✈️",
-};
+import { categoryIconFor } from "@/lib/category-icons";
 
 export function CategoryCard({
   category,
@@ -22,7 +10,7 @@ export function CategoryCard({
   category: Category;
   storeCount: number;
 }) {
-  const icon = categoryIcons[category.slug] ?? "🛍️";
+  const icon = categoryIconFor(category.slug);
 
   return (
     <Link href={`/categoria/${category.slug}`} className="block">
