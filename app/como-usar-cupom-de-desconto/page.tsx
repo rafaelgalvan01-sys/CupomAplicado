@@ -140,7 +140,7 @@ export default function ComoUsarCupomDeDescontoPage() {
         <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           Como usar cupom de desconto: passo a passo
         </h1>
-        <p className="max-w-2xl text-lg text-muted-foreground">
+        <p className="text-lg text-muted-foreground">
           Um cupom de desconto é um código que, aplicado no carrinho de uma loja online, reduz o
           valor da compra ou libera um benefício como frete grátis. O processo é simples, mas alguns
           detalhes fazem a diferença entre o desconto ser aplicado ou não.
@@ -172,21 +172,21 @@ export default function ComoUsarCupomDeDescontoPage() {
         <h2 className="text-xl font-semibold text-foreground">
           Por que um cupom de desconto às vezes não funciona
         </h2>
-        <p className="max-w-2xl text-muted-foreground">
+        <p className="text-muted-foreground">
           Um cupom deixa de funcionar quando a compra não atende a alguma regra definida pela
           própria loja — não tem relação com o Cupom Aplicado. Os motivos mais comuns:
         </p>
-        <ul className="max-w-2xl list-disc space-y-1 pl-5 text-muted-foreground">
+        <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           {REASONS_NOT_WORKING.map((reason) => (
             <li key={reason}>{reason}</li>
           ))}
         </ul>
-        <p className="max-w-2xl text-muted-foreground">
+        <p className="text-muted-foreground">
           Por isso cada cupom no site mostra o indicador &quot;Funciona?&quot;, baseado nos votos de
           quem já tentou usar — um jeito rápido de saber se vale a pena tentar antes de ir até o
           checkout da loja.
         </p>
-        <div className="flex max-w-2xl flex-col gap-2 sm:flex-row">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <Link
             href="/guias/como-funciona-um-cupom-de-desconto"
             className="flex-1 rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
