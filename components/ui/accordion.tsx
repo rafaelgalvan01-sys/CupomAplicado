@@ -52,10 +52,10 @@ function AccordionPanel({
   return (
     <AccordionPrimitive.Panel
       data-slot="accordion-panel"
-      className="h-0 overflow-hidden text-sm transition-[height] duration-200 ease-out data-[open]:h-(--accordion-panel-height)"
+      className="grid grid-rows-[0fr] overflow-hidden text-sm transition-[grid-template-rows] duration-200 ease-out data-[open]:grid-rows-[1fr]"
       {...props}
     >
-      <div className={cn("pb-4", className)}>{children}</div>
+      <div className={cn("min-h-0 pb-4", className)}>{children}</div>
     </AccordionPrimitive.Panel>
   )
 }
