@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Send, CheckCircle2, Mail } from "lucide-react";
+import { Send, CheckCircle2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -124,9 +124,8 @@ export function ContactForm({ contactEmail }: { contactEmail: string }) {
           Prefere e-mail direto? Escreva para{" "}
           <Link
             href={`mailto:${contactEmail}`}
-            className="inline-flex items-center gap-1 font-medium text-brand-text hover:underline"
+            className="font-medium text-brand-text hover:underline"
           >
-            <Mail className="size-4" />
             {contactEmail}
           </Link>
           .
