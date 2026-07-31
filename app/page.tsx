@@ -10,11 +10,13 @@ import {
   getActiveCouponsCount,
   getHomeCategories,
   getLatestGuides,
+  getCouponFilterStores,
   COUPONS_PAGE_SIZE,
 } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
 import { StoreCarousel } from "@/components/StoreCarousel";
 import { HomeCategories } from "@/components/HomeCategories";
+import { CouponFilters } from "@/components/CouponFilters";
 import { GuideCard } from "@/components/GuideCard";
 import { HeroBackground } from "@/components/HeroBackground";
 import { JsonLd } from "@/components/JsonLd";
@@ -53,21 +55,24 @@ const HOME_FAQ = [
 ];
 
 type Props = {
-  searchParams: Promise<{ q?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; page?: string; loja?: string; categoria?: string }>;
 };
 
-// Buscas internas não têm conteúdo próprio pra indexar (é a mesma listagem
-// filtrada) — a página "real" pro Google é sempre a home sem parâmetros.
+// Buscas e filtros internos não têm conteúdo próprio pra indexar (é a mesma
+// listagem, só filtrada — e as páginas de /loja e /categoria já cobrem esses
+// recortes). A página "real" pro Google é sempre a home sem parâmetros.
 // Páginas seguintes (?page=2, 3...) são conteúdo genuinamente diferente da
 // página 1 (outros cupons), então continuam indexáveis, cada uma com seu
-// próprio canonical — só busca (?q=) fica de fora do índice.
+// próprio canonical — só busca (?q=) e filtros (?loja=/?categoria=) ficam de
+// fora do índice, com canonical apontando pra home limpa.
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const { q, page } = await searchParams;
+  const { q, page, loja, categoria } = await searchParams;
+  const filtered = Boolean(q || loja || categoria);
   const pageNumber = Number(page) || 1;
-  const canonical = pageNumber > 1 ? `/?page=${pageNumber}` : "/";
+  const canonical = filtered ? "/" : pageNumber > 1 ? `/?page=${pageNumber}` : "/";
   return {
     alternates: { canonical },
-    ...(q && { robots: { index: false, follow: true } }),
+    ...(filtered && { robots: { index: false, follow: true } }),
   };
 }
 
@@ -80,19 +85,28 @@ function toStoreProp(coupon: CouponWithStore) {
 }
 
 export default async function Home({ searchParams }: Props) {
-  const { q, page } = await searchParams;
+  const { q, page, loja, categoria } = await searchParams;
   const currentPage = Math.max(Number(page) || 1, 1);
 
-  const [featured, coupons, couponsTotal, topStores, activeCount, categories, latestGuides] =
-    await Promise.all([
-      q || currentPage > 1 ? Promise.resolve([]) : getFeaturedCoupons(),
-      getCoupons({ query: q, page: currentPage }),
-      getCouponsCount(q),
-      getTopStores(10),
-      getActiveCouponsCount(),
-      getHomeCategories(),
-      getLatestGuides(3),
-    ]);
+  const [
+    featured,
+    coupons,
+    couponsTotal,
+    topStores,
+    activeCount,
+    categories,
+    latestGuides,
+    filterStores,
+  ] = await Promise.all([
+    q || currentPage > 1 ? Promise.resolve([]) : getFeaturedCoupons(),
+    getCoupons({ query: q, storeSlug: loja, categorySlug: categoria, page: currentPage }),
+    getCouponsCount({ query: q, storeSlug: loja, categorySlug: categoria }),
+    getTopStores(10),
+    getActiveCouponsCount(),
+    getHomeCategories(),
+    getLatestGuides(3),
+    getCouponFilterStores(),
+  ]);
   const totalPages = Math.max(Math.ceil(couponsTotal / COUPONS_PAGE_SIZE), 1);
 
   const websiteJsonLd = {
@@ -197,9 +211,19 @@ export default async function Home({ searchParams }: Props) {
         )}
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-            {q ? `Resultados para "${q}"` : "Todos os cupons"}
-          </h2>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+              {q ? `Resultados para "${q}"` : "Todos os cupons"}
+            </h2>
+            {!q && (
+              <CouponFilters
+                stores={filterStores}
+                categories={categories}
+                selectedStore={loja}
+                selectedCategory={categoria}
+              />
+            )}
+          </div>
           {coupons.length === 0 ? (
             <p className="text-muted-foreground">Nenhum cupom encontrado.</p>
           ) : (
@@ -214,7 +238,12 @@ export default async function Home({ searchParams }: Props) {
               ))}
             </div>
           )}
-          <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/" params={{ q }} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            basePath="/"
+            params={{ q, loja, categoria }}
+          />
         </section>
 
         {!q && currentPage === 1 && latestGuides.length > 0 && (
