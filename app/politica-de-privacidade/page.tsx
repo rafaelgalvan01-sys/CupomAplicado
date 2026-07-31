@@ -89,15 +89,23 @@ export default function PoliticaDePrivacidadePage() {
             site.
           </li>
           <li>
+            <span className="font-medium text-foreground">Cookie de votação:</span> quando você vota
+            se um cupom &quot;Funciona?&quot;, guardamos no seu navegador um código aleatório (um cookie
+            chamado <span className="font-medium text-foreground">voter_id</span>) e registramos o seu
+            voto ligado a esse código, apenas para evitar voto duplicado. Esse código não identifica
+            você.
+          </li>
+          <li>
             <span className="font-medium text-foreground">Cookies de redes de afiliados:</span> ao
             clicar em um cupom e ser levado para a loja, a rede de afiliados pode registrar um cookie
             para reconhecer que o clique veio do Cupom Aplicado — é isso que nos permite receber uma
             comissão da loja, sem custo extra para você.
           </li>
           <li>
-            <span className="font-medium text-foreground">Mensagens que você nos envia:</span> se você
-            escrever para {CONTACT_EMAIL}, recebemos o seu endereço de e-mail e o conteúdo da
-            mensagem, usados apenas para responder você.
+            <span className="font-medium text-foreground">Mensagens de contato:</span> quando você usa
+            o formulário de contato ou escreve para {CONTACT_EMAIL}, tratamos os dados que você
+            informa (nome, e-mail, assunto e mensagem), usados apenas para responder você. O envio do
+            formulário é processado pelo serviço Web3Forms, que entrega a mensagem no nosso e-mail.
           </li>
         </ul>
       </section>
@@ -144,7 +152,16 @@ export default function PoliticaDePrivacidadePage() {
             processam o clique nos cupons para creditar a comissão. Cada uma tem a própria política de
             privacidade, aplicada a partir do momento em que você entra no site da loja.
           </li>
+          <li>
+            <span className="font-medium text-foreground">Web3Forms:</span> processa o envio do
+            formulário de contato e entrega a sua mensagem no nosso e-mail.
+          </li>
         </ul>
+        <p className="text-muted-foreground">
+          Alguns desses serviços ficam fora do Brasil, então os dados podem ser tratados no exterior
+          (transferência internacional). Escolhemos serviços que seguem padrões reconhecidos de
+          proteção de dados.
+        </p>
       </section>
 
       <section className="flex flex-col gap-3 border-t border-border pt-8">

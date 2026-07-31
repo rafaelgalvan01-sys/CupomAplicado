@@ -12,6 +12,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { ContactForm } from "@/components/ContactForm";
 
 // Página institucional estática, sem dado dinâmico — mesmo padrão de /sobre.
 export const revalidate = 300;
@@ -106,18 +107,26 @@ export default function ContatoPage() {
           Contato
         </h1>
         <p className="text-lg text-muted-foreground">
-          O jeito mais rápido de falar com o Cupom Aplicado é pelo e-mail{" "}
-          <span className="font-medium text-foreground">{CONTACT_EMAIL}</span> — respondemos
-          normalmente em até 2 dias úteis. Não temos telefone nem endereço físico de atendimento: todo
-          o suporte é feito por e-mail.
+          Preencha o formulário abaixo que a gente responde por e-mail, normalmente em até 2 dias
+          úteis. Não temos telefone nem endereço físico de atendimento: todo o suporte é feito por
+          e-mail.
         </p>
-        <Link
-          href={`mailto:${CONTACT_EMAIL}`}
-          className="flex w-fit items-center gap-3 rounded-xl border border-brand/22 bg-brand/10 px-5 py-4 text-base font-medium text-brand-text transition-colors hover:bg-brand/15 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
-          <Mail className="size-5 shrink-0" />
-          {CONTACT_EMAIL}
-        </Link>
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xl font-semibold text-foreground">Envie uma mensagem</h2>
+        <ContactForm />
+        <p className="text-sm text-muted-foreground">
+          Prefere e-mail direto? Escreva para{" "}
+          <Link
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="inline-flex items-center gap-1 font-medium text-brand-text hover:underline"
+          >
+            <Mail className="size-4" />
+            {CONTACT_EMAIL}
+          </Link>
+          .
+        </p>
       </section>
 
       <section className="flex flex-col gap-4">
