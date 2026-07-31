@@ -145,6 +145,26 @@ export const getGuides = unstable_cache(
   { revalidate: REVALIDATE_SECONDS }
 )
 
+// Os guias mais recentes (com conteúdo já gerado) — usado na seção de guias da
+// home. Ordena por created_at desc; os sem intro ficam de fora, como no getGuides.
+export const getLatestGuides = unstable_cache(
+  async (limit = 3): Promise<Guide[]> => {
+    const { data, error } = await supabase
+      .from('guides')
+      .select('*')
+      .not('intro', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+    if (error) {
+      if (isMissingRelation(error)) return []
+      throw error
+    }
+    return data
+  },
+  ['latest-guides'],
+  { revalidate: REVALIDATE_SECONDS }
+)
+
 // Todos os slugs (com ou sem conteúdo ainda) — usado só pra
 // generateStaticParams; a própria página trata o caso de conteúdo pendente.
 export const getGuideSlugs = unstable_cache(

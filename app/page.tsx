@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { Star } from "lucide-react";
 import {
   getFeaturedCoupons,
@@ -8,11 +9,13 @@ import {
   getTopStores,
   getActiveCouponsCount,
   getHomeCategories,
+  getLatestGuides,
   COUPONS_PAGE_SIZE,
 } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
 import { StoreCarousel } from "@/components/StoreCarousel";
 import { HomeCategories } from "@/components/HomeCategories";
+import { GuideCard } from "@/components/GuideCard";
 import { HeroBackground } from "@/components/HeroBackground";
 import { JsonLd } from "@/components/JsonLd";
 import iconMark from "@/app/icon.png";
@@ -80,14 +83,16 @@ export default async function Home({ searchParams }: Props) {
   const { q, page } = await searchParams;
   const currentPage = Math.max(Number(page) || 1, 1);
 
-  const [featured, coupons, couponsTotal, topStores, activeCount, categories] = await Promise.all([
-    q || currentPage > 1 ? Promise.resolve([]) : getFeaturedCoupons(),
-    getCoupons({ query: q, page: currentPage }),
-    getCouponsCount(q),
-    getTopStores(10),
-    getActiveCouponsCount(),
-    getHomeCategories(),
-  ]);
+  const [featured, coupons, couponsTotal, topStores, activeCount, categories, latestGuides] =
+    await Promise.all([
+      q || currentPage > 1 ? Promise.resolve([]) : getFeaturedCoupons(),
+      getCoupons({ query: q, page: currentPage }),
+      getCouponsCount(q),
+      getTopStores(10),
+      getActiveCouponsCount(),
+      getHomeCategories(),
+      getLatestGuides(3),
+    ]);
   const totalPages = Math.max(Math.ceil(couponsTotal / COUPONS_PAGE_SIZE), 1);
 
   const websiteJsonLd = {
@@ -211,6 +216,24 @@ export default async function Home({ searchParams }: Props) {
           )}
           <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/" params={{ q }} />
         </section>
+
+        {!q && currentPage === 1 && latestGuides.length > 0 && (
+          <section data-slot="home-guides" className="flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                Guias
+              </h2>
+              <Link href="/guias" className="text-xs font-medium text-brand-text hover:underline">
+                Ver todos
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {latestGuides.map((guide) => (
+                <GuideCard key={guide.id} guide={guide} />
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="flex flex-col gap-3 border-t border-border pt-8">
           <h2 className="text-xl font-semibold text-foreground">Perguntas frequentes</h2>
