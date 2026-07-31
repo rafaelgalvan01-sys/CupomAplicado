@@ -210,10 +210,10 @@ export default async function Home({ searchParams }: Props) {
           </section>
         )}
 
-        <section className="flex flex-col gap-4">
+        <section className="flex flex-col gap-4 border-t border-border pt-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-              {q ? `Resultados para "${q}"` : "Todos os cupons"}
+            <h2 className="text-xl font-semibold text-foreground">
+              {q ? `Resultados para "${q}"` : "Últimos cupons"}
             </h2>
             {!q && (
               <CouponFilters
