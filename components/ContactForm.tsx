@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Send, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { Send, CheckCircle2, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ const WEB3FORMS_ACCESS_KEY = "24e28967-f5ec-49cf-91c9-8fd0b8ac3ee7";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
-export function ContactForm() {
+export function ContactForm({ contactEmail }: { contactEmail: string }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -118,16 +119,29 @@ export function ContactForm() {
         </p>
       )}
 
-      <Button
-        type="submit"
-        variant="brand"
-        size="lg"
-        disabled={status === "submitting"}
-        className="w-full sm:w-fit"
-      >
-        <Send className="size-4" />
-        {status === "submitting" ? "Enviando…" : "Enviar mensagem"}
-      </Button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">
+          Prefere e-mail direto? Escreva para{" "}
+          <Link
+            href={`mailto:${contactEmail}`}
+            className="inline-flex items-center gap-1 font-medium text-brand-text hover:underline"
+          >
+            <Mail className="size-4" />
+            {contactEmail}
+          </Link>
+          .
+        </p>
+        <Button
+          type="submit"
+          variant="brand"
+          size="lg"
+          disabled={status === "submitting"}
+          className="w-full sm:w-auto"
+        >
+          <Send className="size-4" />
+          {status === "submitting" ? "Enviando…" : "Enviar mensagem"}
+        </Button>
+      </div>
     </form>
   );
 }

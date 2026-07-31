@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Mail, TicketPercent, Store, HelpCircle, ShieldCheck } from "lucide-react";
+import { TicketPercent, Store, HelpCircle, ShieldCheck } from "lucide-react";
 import { JsonLd } from "@/components/JsonLd";
 import { SITE_URL } from "@/lib/site";
 import {
@@ -115,18 +115,7 @@ export default function ContatoPage() {
 
       <section className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold text-foreground">Envie uma mensagem</h2>
-        <ContactForm />
-        <p className="text-sm text-muted-foreground">
-          Prefere e-mail direto? Escreva para{" "}
-          <Link
-            href={`mailto:${CONTACT_EMAIL}`}
-            className="inline-flex items-center gap-1 font-medium text-brand-text hover:underline"
-          >
-            <Mail className="size-4" />
-            {CONTACT_EMAIL}
-          </Link>
-          .
-        </p>
+        <ContactForm contactEmail={CONTACT_EMAIL} />
       </section>
 
       <section className="flex flex-col gap-4">
