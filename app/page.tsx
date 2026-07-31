@@ -218,11 +218,9 @@ export default async function Home({ searchParams }: Props) {
         </section>
 
         {!q && currentPage === 1 && latestGuides.length > 0 && (
-          <section data-slot="home-guides" className="flex flex-col gap-4">
+          <section data-slot="home-guides" className="flex flex-col gap-4 border-t border-border pt-8">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-                Guias
-              </h2>
+              <h2 className="text-xl font-semibold text-foreground">Guias</h2>
               <Link href="/guias" className="text-xs font-medium text-brand-text hover:underline">
                 Ver todos
               </Link>
