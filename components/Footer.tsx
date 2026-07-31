@@ -7,6 +7,12 @@ export function Footer() {
         <Link href="/sobre" className="hover:text-foreground hover:underline">
           Sobre o Cupom Aplicado
         </Link>
+        <Link href="/contato" className="hover:text-foreground hover:underline">
+          Contato
+        </Link>
+        <Link href="/politica-de-privacidade" className="hover:text-foreground hover:underline">
+          Política de Privacidade
+        </Link>
       </nav>
       <p>© {new Date().getFullYear()} Cupom Aplicado. Todos os direitos reservados.</p>
       {/* Texto sr-only usado para verificar a propriedade do site junto à rede de
