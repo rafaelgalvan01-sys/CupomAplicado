@@ -332,52 +332,124 @@ const getCouponsCached = unstable_cache(
 
 export const COUPONS_PAGE_SIZE = 60
 
-export async function getCoupons(options: { query?: string; limit?: number; page?: number }): Promise<CouponWithStore[]> {
-  const { query, limit = COUPONS_PAGE_SIZE, page = 1 } = options
+export type CouponFilters = { query?: string; storeSlug?: string; categorySlug?: string }
+
+// Resolve os filtros de loja/categoria num conjunto de store_ids permitidos.
+// null = sem filtro por loja (não restringe); [] = filtro que não casa com nada
+// (a listagem deve vir vazia); [ids] = só cupons dessas lojas. Fica fora do
+// cache porque depende dos filtros escolhidos na requisição.
+async function resolveFilterStoreIds(storeSlug?: string, categorySlug?: string): Promise<string[] | null> {
+  if (!storeSlug && !categorySlug) return null
+
+  let ids: string[] | null = null
+
+  if (categorySlug) {
+    const { data } = await supabase
+      .from('stores')
+      .select('id, categories!inner(slug)')
+      .eq('active', true)
+      .eq('categories.slug', categorySlug)
+    ids = ((data ?? []) as unknown as { id: string }[]).map((s) => s.id)
+  }
+
+  if (storeSlug) {
+    const { data } = await supabase
+      .from('stores')
+      .select('id')
+      .eq('slug', storeSlug)
+      .eq('active', true)
+      .maybeSingle()
+    const brandId = (data as { id: string } | null)?.id
+    if (!brandId) return []
+    ids = ids ? ids.filter((id) => id === brandId) : [brandId]
+  }
+
+  return ids
+}
+
+export async function getCoupons(
+  options: CouponFilters & { limit?: number; page?: number }
+): Promise<CouponWithStore[]> {
+  const { query, storeSlug, categorySlug, limit = COUPONS_PAGE_SIZE, page = 1 } = options
   const offset = (Math.max(page, 1) - 1) * limit
   const term = query?.trim().replace(/[,()%]/g, '')
 
-  if (!term) return getCouponsCached(limit, offset)
+  // Sem termo e sem filtro: caminho cacheado.
+  if (!term && !storeSlug && !categorySlug) return getCouponsCached(limit, offset)
 
-  const { data: matchingStores } = await supabase.from('stores').select('id').ilike('name', `%${term}%`)
-  const storeIds = (matchingStores ?? []).map((s) => s.id)
+  const allowedStoreIds = await resolveFilterStoreIds(storeSlug, categorySlug)
+  if (allowedStoreIds && allowedStoreIds.length === 0) return []
 
-  const orParts = [`title.ilike.%${term}%`]
-  if (storeIds.length > 0) orParts.push(`store_id.in.(${storeIds.join(',')})`)
+  let builder = supabase.from('coupons').select(COUPON_WITH_STORE_SELECT).eq('active', true)
+  if (allowedStoreIds) builder = builder.in('store_id', allowedStoreIds)
 
-  const { data, error } = await supabase
-    .from('coupons')
-    .select(COUPON_WITH_STORE_SELECT)
-    .eq('active', true)
-    .or(orParts.join(','))
+  if (term) {
+    const { data: matchingStores } = await supabase.from('stores').select('id').ilike('name', `%${term}%`)
+    const storeIds = (matchingStores ?? []).map((s) => s.id)
+    const orParts = [`title.ilike.%${term}%`]
+    if (storeIds.length > 0) orParts.push(`store_id.in.(${storeIds.join(',')})`)
+    builder = builder.or(orParts.join(','))
+  }
+
+  const { data, error } = await builder
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
   if (error) throw error
   return data as unknown as CouponWithStore[]
 }
 
-// Total de cupons pra calcular quantas páginas mostrar na paginação — mesmo
-// filtro de getCoupons, mas só a contagem (count: 'exact', head: true não
-// baixa as linhas). Busca por termo livre fica de fora do cache pelo mesmo
-// motivo de getCoupons.
-export async function getCouponsCount(query?: string): Promise<number> {
+// Total de cupons pra calcular quantas páginas mostrar na paginação — mesmos
+// filtros de getCoupons, mas só a contagem (count: 'exact', head: true não
+// baixa as linhas). Fica fora do cache pelo mesmo motivo de getCoupons.
+export async function getCouponsCount(options: CouponFilters = {}): Promise<number> {
+  const { query, storeSlug, categorySlug } = options
   const term = query?.trim().replace(/[,()%]/g, '')
-  if (!term) return getActiveCouponsCount()
 
-  const { data: matchingStores } = await supabase.from('stores').select('id').ilike('name', `%${term}%`)
-  const storeIds = (matchingStores ?? []).map((s) => s.id)
+  if (!term && !storeSlug && !categorySlug) return getActiveCouponsCount()
 
-  const orParts = [`title.ilike.%${term}%`]
-  if (storeIds.length > 0) orParts.push(`store_id.in.(${storeIds.join(',')})`)
+  const allowedStoreIds = await resolveFilterStoreIds(storeSlug, categorySlug)
+  if (allowedStoreIds && allowedStoreIds.length === 0) return 0
 
-  const { count, error } = await supabase
-    .from('coupons')
-    .select('id', { count: 'exact', head: true })
-    .eq('active', true)
-    .or(orParts.join(','))
+  let builder = supabase.from('coupons').select('id', { count: 'exact', head: true }).eq('active', true)
+  if (allowedStoreIds) builder = builder.in('store_id', allowedStoreIds)
+
+  if (term) {
+    const { data: matchingStores } = await supabase.from('stores').select('id').ilike('name', `%${term}%`)
+    const storeIds = (matchingStores ?? []).map((s) => s.id)
+    const orParts = [`title.ilike.%${term}%`]
+    if (storeIds.length > 0) orParts.push(`store_id.in.(${storeIds.join(',')})`)
+    builder = builder.or(orParts.join(','))
+  }
+
+  const { count, error } = await builder
   if (error) throw error
   return count ?? 0
 }
+
+// Lojas que têm ao menos um cupom ativo — opções do filtro de marca na home
+// (não faz sentido oferecer marca sem cupom ativo, filtrar por ela viria vazio).
+export const getCouponFilterStores = unstable_cache(
+  async (): Promise<{ slug: string; name: string }[]> => {
+    const { data, error } = await supabase
+      .from('stores')
+      .select('name, slug, coupons!inner(id)')
+      .eq('active', true)
+      .eq('coupons.active', true)
+      .order('name')
+    if (error) throw error
+
+    const seen = new Set<string>()
+    const stores: { slug: string; name: string }[] = []
+    for (const row of (data ?? []) as unknown as { name: string; slug: string }[]) {
+      if (seen.has(row.slug)) continue
+      seen.add(row.slug)
+      stores.push({ slug: row.slug, name: row.name })
+    }
+    return stores
+  },
+  ['coupon-filter-stores'],
+  { revalidate: REVALIDATE_SECONDS }
+)
 
 // Ordena por cliques agregados dos cupons ativos da loja — proxy automático
 // de popularidade real de uso no site, sem precisar de curadoria manual nem
