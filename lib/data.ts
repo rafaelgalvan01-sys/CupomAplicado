@@ -309,6 +309,33 @@ export const getCouponsByStore = cache(
   )
 )
 
+// Últimos cupons já vencidos de uma loja (expires_at no passado), pra seção
+// "Cupons expirados" da página da loja. Eles continuam active=true no banco e
+// NÃO são desativados na importação de propósito: a RLS "Public read active
+// coupons" (using active = true) esconde qualquer coupon active=false do site,
+// então desativá-los tornaria impossível exibi-los aqui. Quem os tira das
+// listagens normais é o notExpiredFilter, não o active. Ordena pelo que expirou
+// mais recentemente ("últimos" expirados).
+export const getExpiredCouponsByStore = cache(
+  unstable_cache(
+    async (storeId: string, limit = 4): Promise<Coupon[]> => {
+      const { data, error } = await supabase
+        .from('coupons')
+        .select('*')
+        .eq('store_id', storeId)
+        .eq('active', true)
+        .not('expires_at', 'is', null)
+        .lt('expires_at', new Date().toISOString())
+        .order('expires_at', { ascending: false })
+        .limit(limit)
+      if (error) throw error
+      return data
+    },
+    ['expired-coupons-by-store'],
+    { revalidate: REVALIDATE_SECONDS }
+  )
+)
+
 export const getFeaturedCoupons = unstable_cache(
   async (limit = 3): Promise<CouponWithStore[]> => {
     const { data, error } = await supabase

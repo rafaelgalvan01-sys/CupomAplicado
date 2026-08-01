@@ -8,6 +8,7 @@ import { toast } from "sonner";
 type Props = {
   couponId: string;
   code: string | null;
+  disabled?: boolean;
 };
 
 type Status = "idle" | "copied" | "error";
@@ -19,11 +20,12 @@ const REDIRECT_DELAY_MS = 700;
 // Código só aparece depois do clique — igual ao padrão dos concorrentes
 // (Cuponomia, Pelando). Antes disso mostramos pontinhos no lugar do texto
 // real (não é blur: o código não fica no DOM até ser revelado).
-export function CopyCouponButton({ couponId, code }: Props) {
+export function CopyCouponButton({ couponId, code, disabled = false }: Props) {
   const [status, setStatus] = useState<Status>("idle");
   const [revealed, setRevealed] = useState(false);
 
   function handleClick() {
+    if (disabled) return;
     const url = `/ir/${couponId}`;
 
     if (!code) {
@@ -76,7 +78,7 @@ export function CopyCouponButton({ couponId, code }: Props) {
   const label = status === "copied" ? "Copiado!" : status === "error" ? "Erro ao copiar" : code ? "Copiar" : "Ver oferta";
 
   const button = (
-    <Button variant="brand" size="lg" className="h-9 shrink-0" onClick={handleClick} aria-live="polite">
+    <Button variant="brand" size="lg" className="h-9 shrink-0" onClick={handleClick} disabled={disabled} aria-live="polite">
       {status === "copied" && <Check className="size-4" />}
       {status === "error" && <AlertTriangle className="size-4" />}
       {status === "idle" && <Copy className="size-4" />}
