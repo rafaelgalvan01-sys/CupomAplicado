@@ -372,7 +372,7 @@ const getCouponsCached = unstable_cache(
   { revalidate: REVALIDATE_SECONDS }
 )
 
-export const COUPONS_PAGE_SIZE = 60
+export const COUPONS_PAGE_SIZE = 10
 
 export type CouponFilters = { query?: string; storeSlug?: string; categorySlug?: string }
 
