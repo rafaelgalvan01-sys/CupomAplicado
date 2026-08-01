@@ -61,7 +61,15 @@ export function CouponCard({
   const avatarBg = avatarBgColorFor(store.name);
 
   return (
-    <Card className="h-full transition-all hover:-translate-y-0.5 hover:shadow-lg">
+    <Card
+      className={cn(
+        "h-full transition-all",
+        // Expirado: sem o "levantar" no hover (as ações estão desabilitadas,
+        // não deve convidar interação) e levemente esmaecido, pra ler como
+        // inativo/secundário.
+        expired ? "opacity-70" : "hover:-translate-y-0.5 hover:shadow-lg"
+      )}
+    >
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
           <Link
