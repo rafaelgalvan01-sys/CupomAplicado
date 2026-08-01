@@ -178,6 +178,24 @@ async function main() {
 
   console.log(`Pronto! ${imported} cupons importados/atualizados.`);
 
+  // Desativa cupons já vencidos desta fonte (active=false), pra não ficarem
+  // aparecendo no site. Roda DEPOIS dos upserts (o upsert regrava active=true;
+  // a desativação corrige os vencidos em seguida) e escopado por source, pra
+  // cada fonte limpar só os próprios cupons e manter as fontes independentes
+  // (ver AGENTS.md). Se falhar, só loga e segue — não é motivo pra descartar a
+  // importação. A camada de dados (lib/data.ts, notExpiredFilter) também
+  // esconde vencidos na consulta, cobrindo a janela até o próximo import.
+  const nowIso = new Date().toISOString();
+  const { error: expireError } = await supabase
+    .from("coupons")
+    .update({ active: false })
+    .eq("source", "lomadee")
+    .not("expires_at", "is", null)
+    .lt("expires_at", nowIso);
+  if (expireError) {
+    console.error("Falha ao desativar cupons expirados:", expireError.message);
+  }
+
   // Mesmo importando o que deu, uma paginação incompleta significa que a
   // Lomadee está instável — o job continua marcado como falho (ver
   // AGENTS.md) pra não perder o alerta por e-mail do GitHub Actions.
