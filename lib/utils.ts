@@ -12,7 +12,7 @@ export function truncateText(text: string, maxLength: number): string {
   return text.slice(0, maxLength).replace(/\s+\S*$/, "") + "…"
 }
 
-// Frescor real ("Atualizado há X") a partir de um updated_at genuíno (ver
+// Frescor real ("Verificado há X") a partir de um updated_at genuíno (ver
 // migração 0006) — nunca uma data fixa/decorativa.
 export function formatRelativeTime(dateStr: string): string {
   const diffMs = Date.now() - new Date(dateStr).getTime()

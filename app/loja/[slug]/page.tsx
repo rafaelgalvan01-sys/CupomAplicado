@@ -185,7 +185,7 @@ export default async function StorePage({ params }: Props) {
           </h2>
           {mostRecentUpdate && (
             <span className="text-xs text-muted-foreground">
-              Atualizado {formatRelativeTime(mostRecentUpdate)}
+              Verificado {formatRelativeTime(mostRecentUpdate)}
             </span>
           )}
         </div>

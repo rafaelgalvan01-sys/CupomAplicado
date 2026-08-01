@@ -123,9 +123,9 @@ export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expi
             </span>
           )}
           {updatedAt && (
-            <span className="flex items-center gap-1" title="Baseado na última importação/atualização real deste cupom">
+            <span className="flex items-center gap-1" title="Baseado na última verificação real deste cupom">
               <Clock className="size-3" />
-              {formatRelativeTime(updatedAt)}
+              Verificado {formatRelativeTime(updatedAt)}
             </span>
           )}
         </div>
