@@ -4,6 +4,10 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
+# Antes de mexer no backend
+
+Antes de escrever qualquer código de backend (camada de dados em `lib/data.ts`, rotas em `app/api/`, migrações em `supabase/`, scripts em `scripts/`), **leia `docs/BACKEND_CONVENTIONS.md`** — ele descreve os padrões de arquitetura, cache, acesso ao Supabase/RLS, migrações e scripts do projeto. As regras abaixo (SEO/performance/importação) continuam valendo e complementam aquele documento.
+
 # Convenções do projeto (SEO e performance)
 
 Regras fixas, resultado da auditoria de SEO de jul/2026. Aplicar em qualquer página/componente novo, não só nos que já existem.
