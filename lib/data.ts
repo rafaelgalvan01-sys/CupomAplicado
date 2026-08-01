@@ -15,6 +15,18 @@ const COUPON_WITH_STORE_SELECT =
 // o que por si só já impede cache no nível de rota).
 const REVALIDATE_SECONDS = 300
 
+// Filtro de "não expirado" pra leituras/contagens de cupom: traz cupom sem
+// data de validade (null = nunca expira) ou com validade ainda no futuro,
+// escondendo cupom já vencido do site. Complementa a desativação feita na
+// importação (scripts/import-*.mjs): cobre a janela entre uma importação e
+// outra — um cupom que vence às 10h some na hora, sem esperar o próximo
+// import (que roda a cada 3h). O "agora" é recalculado a cada chamada; nas
+// funções cacheadas ele congela junto com o cache (≤5 min), o que é aceitável
+// pra validade. É um .or separado, AND-ado com os demais filtros da query.
+function notExpiredFilter() {
+  return `expires_at.is.null,expires_at.gte.${new Date().toISOString()}`
+}
+
 export const getCategories = unstable_cache(
   async (): Promise<Category[]> => {
     const { data, error } = await supabase
@@ -287,6 +299,7 @@ export const getCouponsByStore = cache(
         .select('*')
         .eq('store_id', storeId)
         .eq('active', true)
+        .or(notExpiredFilter())
         .order('created_at', { ascending: false })
       if (error) throw error
       return data
@@ -303,6 +316,7 @@ export const getFeaturedCoupons = unstable_cache(
       .select(COUPON_WITH_STORE_SELECT)
       .eq('active', true)
       .eq('is_highlight', true)
+      .or(notExpiredFilter())
       .order('created_at', { ascending: false })
       .limit(limit)
     if (error) throw error
@@ -321,6 +335,7 @@ const getCouponsCached = unstable_cache(
       .from('coupons')
       .select(COUPON_WITH_STORE_SELECT)
       .eq('active', true)
+      .or(notExpiredFilter())
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
     if (error) throw error
@@ -380,7 +395,7 @@ export async function getCoupons(
   const allowedStoreIds = await resolveFilterStoreIds(storeSlug, categorySlug)
   if (allowedStoreIds && allowedStoreIds.length === 0) return []
 
-  let builder = supabase.from('coupons').select(COUPON_WITH_STORE_SELECT).eq('active', true)
+  let builder = supabase.from('coupons').select(COUPON_WITH_STORE_SELECT).eq('active', true).or(notExpiredFilter())
   if (allowedStoreIds) builder = builder.in('store_id', allowedStoreIds)
 
   if (term) {
@@ -410,7 +425,7 @@ export async function getCouponsCount(options: CouponFilters = {}): Promise<numb
   const allowedStoreIds = await resolveFilterStoreIds(storeSlug, categorySlug)
   if (allowedStoreIds && allowedStoreIds.length === 0) return 0
 
-  let builder = supabase.from('coupons').select('id', { count: 'exact', head: true }).eq('active', true)
+  let builder = supabase.from('coupons').select('id', { count: 'exact', head: true }).eq('active', true).or(notExpiredFilter())
   if (allowedStoreIds) builder = builder.in('store_id', allowedStoreIds)
 
   if (term) {
@@ -484,6 +499,7 @@ export const getActiveCouponsCount = unstable_cache(
       .from('coupons')
       .select('*', { count: 'exact', head: true })
       .eq('active', true)
+      .or(notExpiredFilter())
     if (error) throw error
     return count ?? 0
   },
