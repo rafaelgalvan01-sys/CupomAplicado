@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getStoreBySlug, getCouponsByStore, getStores, getRelatedStores, getGuideByCategorySlug } from "@/lib/data";
+import { getStoreBySlug, getCouponsByStore, getExpiredCouponsByStore, getStores, getRelatedStores, getGuideByCategorySlug } from "@/lib/data";
 import { CouponCard } from "@/components/CouponCard";
 import { StoreCard } from "@/components/StoreCard";
 import { JsonLd } from "@/components/JsonLd";
@@ -69,8 +69,9 @@ export default async function StorePage({ params }: Props) {
   const store = await getStoreBySlug(slug);
   if (!store) notFound();
 
-  const [coupons, relatedStores, relatedGuide] = await Promise.all([
+  const [coupons, expiredCoupons, relatedStores, relatedGuide] = await Promise.all([
     getCouponsByStore(store.id),
+    getExpiredCouponsByStore(store.id),
     store.category_id ? getRelatedStores(store.category_id, store.id) : Promise.resolve([]),
     store.categories?.slug ? getGuideByCategorySlug(store.categories.slug) : Promise.resolve(null),
   ]);
@@ -203,6 +204,22 @@ export default async function StorePage({ params }: Props) {
           </div>
         )}
       </section>
+
+      {expiredCoupons.length > 0 && (
+        <section className="flex flex-col gap-4 border-t border-border pt-8">
+          <h2 className="text-xl font-semibold text-foreground">Cupons expirados</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {expiredCoupons.map((coupon) => (
+              <CouponCard
+                key={coupon.id}
+                coupon={coupon}
+                store={{ name: store.name, slug: store.slug, logo_url: store.logo_url }}
+                expired
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {relatedGuide && (
         <Link

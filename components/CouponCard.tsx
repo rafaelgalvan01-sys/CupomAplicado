@@ -51,10 +51,12 @@ export function CouponCard({
   coupon,
   store,
   priority = false,
+  expired = false,
 }: {
   coupon: Coupon;
   store: CouponCardStore;
   priority?: boolean;
+  expired?: boolean;
 }) {
   const avatarBg = avatarBgColorFor(store.name);
 
@@ -94,10 +96,16 @@ export function CouponCard({
           </Badge>
         </div>
 
-        {coupon.is_highlight && (
+        {coupon.is_highlight && !expired && (
           <Badge variant="outline" className="w-fit gap-1 border-brand/40 text-brand-text">
             <Flame className="size-3" />
             Destaque
+          </Badge>
+        )}
+
+        {expired && (
+          <Badge variant="outline" className="w-fit border-border text-muted-foreground">
+            Expirado
           </Badge>
         )}
 
@@ -109,10 +117,10 @@ export function CouponCard({
 
       <CardContent className="flex flex-col gap-3">
         {coupon.code ? (
-          <CopyCouponButton couponId={coupon.id} code={coupon.code} />
+          <CopyCouponButton couponId={coupon.id} code={coupon.code} disabled={expired} />
         ) : (
           <CardFooter className="border-t-0 bg-transparent p-0">
-            <CopyCouponButton couponId={coupon.id} code={coupon.code} />
+            <CopyCouponButton couponId={coupon.id} code={coupon.code} disabled={expired} />
           </CardFooter>
         )}
 
@@ -123,6 +131,7 @@ export function CouponCard({
           expiresAt={coupon.expires_at}
           clicks={coupon.clicks}
           updatedAt={coupon.updated_at}
+          disabled={expired}
         />
       </CardContent>
     </Card>

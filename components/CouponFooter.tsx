@@ -13,6 +13,7 @@ type Props = {
   expiresAt: string | null;
   clicks: number;
   updatedAt: string;
+  disabled?: boolean;
 };
 
 function barColor(percent: number) {
@@ -32,7 +33,7 @@ function formatDate(dateStr: string) {
   return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
-export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expiresAt, clicks, updatedAt }: Props) {
+export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expiresAt, clicks, updatedAt, disabled = false }: Props) {
   const [helpful, setHelpful] = useState(initialHelpful);
   const [notHelpful, setNotHelpful] = useState(initialNotHelpful);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
@@ -42,7 +43,7 @@ export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expi
   const percent = total > 0 ? Math.round((helpful / total) * 100) : 0;
 
   async function vote(isHelpful: boolean) {
-    if (loading) return;
+    if (loading || disabled) return;
     const isUndo = voted === (isHelpful ? "up" : "down");
     setLoading(true);
     try {
@@ -87,7 +88,7 @@ export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expi
           aria-label="Está funcionando"
           aria-pressed={voted === "up"}
           onClick={() => vote(true)}
-          disabled={loading}
+          disabled={loading || disabled}
           className={cn(
             "rounded-full border border-border px-2 py-1",
             voted === "up" && "border-brand/50 text-brand-text"
@@ -103,7 +104,7 @@ export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expi
           aria-label="Não está funcionando"
           aria-pressed={voted === "down"}
           onClick={() => vote(false)}
-          disabled={loading}
+          disabled={loading || disabled}
           className={cn(
             "rounded-full border border-border px-2 py-1",
             voted === "down" && "border-destructive/50 text-destructive"
