@@ -206,7 +206,7 @@ export default async function Home({ searchParams }: Props) {
           </section>
         )}
 
-        <section className="flex flex-col gap-4 border-t border-border pt-8">
+        <section className="flex flex-col gap-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-xl font-semibold text-foreground">
               {q ? `Resultados para "${q}"` : "Últimos cupons"}
@@ -247,7 +247,9 @@ export default async function Home({ searchParams }: Props) {
             carrosséis de descoberta ficam como apoio em seguida. */}
         <div className="flex flex-col gap-8 border-t border-border pt-8">
           <StoreCarousel stores={topStores} title="Lojas parceiras" viewAllHref="/lojas" />
-          <HomeCategories categories={categories} />
+          <div className="border-t border-border pt-8">
+            <HomeCategories categories={categories} />
+          </div>
         </div>
 
         {!q && currentPage === 1 && latestGuides.length > 0 && (
