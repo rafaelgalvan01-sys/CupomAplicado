@@ -10,7 +10,10 @@
      contraste sobre branco, abaixo do mínimo WCAG AA (4.5:1). No tema escuro
      o próprio --brand já passa (~4.8:1), então lá os dois valores coincidem. */
   --brand-text: #0b5c3a;
-  --description-foreground: #6b8aaa;
+  /* #6b8aaa dava 4.44:1 sobre o card branco — logo abaixo do AA (4.5:1) pro
+     texto de título/descrição do cupom. Escurecido pra ~4.8:1 mantendo o tom
+     azul-acinzentado. No escuro o valor é outro (ver bloco @media dark). */
+  --description-foreground: #5a7490;
   --logo-cupom: #051e36;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -67,6 +70,10 @@
     --secondary-foreground: #e8f0fb;
     --muted: #0d2e50;
     --muted-foreground: #9fb3c8;
+    /* Override do texto de título/descrição do cupom no escuro: o valor claro
+       (#5a7490) é escuro demais sobre o card #0a2240 (só ~3.3:1). Aqui vai um
+       azul-acinzentado claro que passa no AA (~6.5:1) sobre o card escuro. */
+    --description-foreground: #8ea7c3;
     --accent: #0d2e50;
     --accent-foreground: #e8f0fb;
     --destructive: oklch(0.704 0.191 22.216);

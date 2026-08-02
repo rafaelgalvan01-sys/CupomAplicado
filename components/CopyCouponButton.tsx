@@ -78,7 +78,7 @@ export function CopyCouponButton({ couponId, code, disabled = false }: Props) {
   const label = status === "copied" ? "Copiado!" : status === "error" ? "Erro ao copiar" : code ? "Copiar" : "Ver oferta";
 
   const button = (
-    <Button variant="brand" size="lg" className="h-9 shrink-0" onClick={handleClick} disabled={disabled} aria-live="polite">
+    <Button variant="brand" size="lg" className="h-11 shrink-0" onClick={handleClick} disabled={disabled} aria-live="polite">
       {status === "copied" && <Check className="size-4" />}
       {status === "error" && <AlertTriangle className="size-4" />}
       {status === "idle" && <Copy className="size-4" />}
@@ -90,7 +90,7 @@ export function CopyCouponButton({ couponId, code, disabled = false }: Props) {
 
   return (
     <div data-slot="coupon-code" className="flex items-center gap-2">
-      <div className="flex flex-1 items-center gap-2 overflow-hidden rounded-md border border-dashed border-border bg-muted px-3 py-2 font-mono text-sm font-semibold">
+      <div className="flex min-h-11 flex-1 items-center gap-2 overflow-hidden rounded-md border border-dashed border-border bg-muted px-3 py-2 font-mono text-sm font-semibold">
         <Copy className="size-3.5 shrink-0 text-muted-foreground" />
         <span className="truncate">{revealed ? code : "•".repeat(code.length)}</span>
       </div>

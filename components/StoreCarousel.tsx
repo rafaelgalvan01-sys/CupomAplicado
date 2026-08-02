@@ -38,7 +38,7 @@ export function StoreCarousel({ stores, title, viewAllHref }: Props) {
               onClick={() => scroll(-1, 320)}
               aria-label="Anterior"
               disabled={!canScrollLeft}
-              className="size-7 rounded-full"
+              className="size-9 rounded-full"
             >
               <ChevronLeft className="size-3.5" />
             </Button>
@@ -49,7 +49,7 @@ export function StoreCarousel({ stores, title, viewAllHref }: Props) {
               onClick={() => scroll(1, 320)}
               aria-label="Próximo"
               disabled={!canScrollRight}
-              className="size-7 rounded-full"
+              className="size-9 rounded-full"
             >
               <ChevronRight className="size-3.5" />
             </Button>
