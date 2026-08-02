@@ -187,10 +187,6 @@ export default async function Home({ searchParams }: Props) {
       </section>
 
       <div className="mx-auto w-full max-w-6xl px-4 pb-14 flex flex-col gap-8">
-        <StoreCarousel stores={topStores} title="Lojas parceiras" viewAllHref="/lojas" />
-
-        <HomeCategories categories={categories} />
-
         {featured.length > 0 && (
           <section className="flex flex-col gap-4">
             <h2 className="flex items-center gap-1.5 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
@@ -245,6 +241,14 @@ export default async function Home({ searchParams }: Props) {
             params={{ q, loja, categoria }}
           />
         </section>
+
+        {/* Lojas e categorias vêm DEPOIS da lista de cupons: assim o usuário
+            chega ao conteúdo principal (os cupons) logo abaixo do hero, e os
+            carrosséis de descoberta ficam como apoio em seguida. */}
+        <div className="flex flex-col gap-8 border-t border-border pt-8">
+          <StoreCarousel stores={topStores} title="Lojas parceiras" viewAllHref="/lojas" />
+          <HomeCategories categories={categories} />
+        </div>
 
         {!q && currentPage === 1 && latestGuides.length > 0 && (
           <section data-slot="home-guides" className="flex flex-col gap-4 border-t border-border pt-8">

@@ -61,7 +61,7 @@ export function StoreCarousel({ stores, title, viewAllHref }: Props) {
         ref={scrollRef}
         className="flex gap-5 overflow-x-auto scroll-smooth px-1 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {stores.map((store, index) => (
+        {stores.map((store) => (
           <Link
             key={store.id}
             href={`/loja/${store.slug}`}
@@ -76,7 +76,6 @@ export function StoreCarousel({ stores, title, viewAllHref }: Props) {
                       alt={store.name}
                       fill
                       sizes="40px"
-                      priority={index < 4}
                       className="object-contain p-1"
                     />
                   </span>
