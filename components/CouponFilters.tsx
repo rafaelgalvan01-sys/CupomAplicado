@@ -45,7 +45,7 @@ export function CouponFilters({ stores, categories, selectedStore, selectedCateg
         value={selectedCategory ?? ALL}
         onValueChange={(value) => setParam("categoria", value === ALL ? null : (value as string))}
       >
-        <SelectTrigger className="w-full sm:w-48" aria-label="Filtrar por categoria">
+        <SelectTrigger className="h-11 w-full sm:h-9 sm:w-48" aria-label="Filtrar por categoria">
           <SelectValue>
             {(value) =>
               value === ALL
@@ -68,7 +68,7 @@ export function CouponFilters({ stores, categories, selectedStore, selectedCateg
         value={selectedStore ?? ALL}
         onValueChange={(value) => setParam("loja", value === ALL ? null : (value as string))}
       >
-        <SelectTrigger className="w-full sm:w-48" aria-label="Filtrar por marca">
+        <SelectTrigger className="h-11 w-full sm:h-9 sm:w-48" aria-label="Filtrar por marca">
           <SelectValue>
             {(value) =>
               value === ALL

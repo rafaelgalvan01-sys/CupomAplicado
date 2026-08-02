@@ -39,7 +39,7 @@ export function HomeCategories({ categories }: Props) {
               onClick={() => scroll(-1, 240)}
               aria-label="Anterior"
               disabled={!canScrollLeft}
-              className="size-7 rounded-full"
+              className="size-9 rounded-full"
             >
               <ChevronLeft className="size-3.5" />
             </Button>
@@ -50,7 +50,7 @@ export function HomeCategories({ categories }: Props) {
               onClick={() => scroll(1, 240)}
               aria-label="Próximo"
               disabled={!canScrollRight}
-              className="size-7 rounded-full"
+              className="size-9 rounded-full"
             >
               <ChevronRight className="size-3.5" />
             </Button>
@@ -66,7 +66,7 @@ export function HomeCategories({ categories }: Props) {
           <li key={category.id} className="shrink-0">
             <Link
               href={`/categoria/${category.slug}`}
-              className="flex items-center gap-2 rounded-full border border-card-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-brand/45 hover:bg-brand/10 hover:text-brand-text focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="flex min-h-11 items-center gap-2 rounded-full border border-card-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-brand/45 hover:bg-brand/10 hover:text-brand-text focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               <span className="text-base leading-none" aria-hidden>
                 {categoryIconFor(category.slug)}
