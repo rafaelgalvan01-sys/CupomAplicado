@@ -25,7 +25,7 @@ export function StoreCarousel({ stores, title, viewAllHref }: Props) {
   return (
     <section data-slot="store-carousel" className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">{title}</h2>
+        <h2 className="text-xl font-semibold text-foreground">{title}</h2>
         <div className="flex items-center gap-3">
           <Link href={viewAllHref} className="text-xs font-medium text-brand-text hover:underline">
             Ver todas
