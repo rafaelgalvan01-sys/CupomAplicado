@@ -51,6 +51,12 @@ function Button({
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      // Quando o Button é renderizado como outro elemento via `render` (no
+      // projeto, quase sempre um <Link> = <a> pra navegação), avisamos o base-ui
+      // que não é mais um <button> nativo — senão ele emite warning e aplica
+      // semântica de botão nativo num <a>. Um `nativeButton` explícito nas props
+      // ainda vence (vem depois no spread).
+      nativeButton={props.render ? false : undefined}
       {...props}
     />
   )
