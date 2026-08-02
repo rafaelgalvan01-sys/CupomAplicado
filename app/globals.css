@@ -156,13 +156,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Alternativa intencional ao "kill" global de 0.01ms (que zerava também as
+     transições úteis de estado): desligamos as animações decorativas em loop
+     (pulso da badge, flutuação dos ícones do hero) e o "levantar" dos cards no
+     hover — movimento sem valor funcional — mas mantemos as transições de
+     cor/opacidade, que dão feedback de mudança de estado sem movimento. */
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
     scroll-behavior: auto !important;
+  }
+  .hover\:-translate-y-0\.5:hover {
+    transform: none !important;
   }
 }
 
