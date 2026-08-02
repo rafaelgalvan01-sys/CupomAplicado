@@ -13,6 +13,20 @@ function pageHref(basePath: string, params: Record<string, string | undefined>, 
   return qs ? `${basePath}?${qs}` : basePath;
 }
 
+// Lista compacta de páginas com reticências: sempre a primeira e a última, mais
+// a atual e uma vizinha de cada lado (ex: 1 … 5 6 7 … 11). Evita uma fileira de
+// N botões que estoura a largura no mobile quando há muitas páginas.
+function getPageItems(current: number, total: number): (number | "ellipsis")[] {
+  const items: (number | "ellipsis")[] = [1];
+  const left = Math.max(2, current - 1);
+  const right = Math.min(total - 1, current + 1);
+  if (left > 2) items.push("ellipsis");
+  for (let page = left; page <= right; page++) items.push(page);
+  if (right < total - 1) items.push("ellipsis");
+  items.push(total);
+  return items;
+}
+
 export function Pagination({
   currentPage,
   totalPages,
@@ -26,10 +40,10 @@ export function Pagination({
 }) {
   if (totalPages <= 1) return null;
 
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const items = getPageItems(currentPage, totalPages);
 
   return (
-    <nav aria-label="Paginação" className="flex items-center justify-center gap-1">
+    <nav aria-label="Paginação" className="flex flex-wrap items-center justify-center gap-1">
       <Button
         variant="outline"
         size="icon"
@@ -40,18 +54,28 @@ export function Pagination({
         <ChevronLeft className="size-4" />
       </Button>
 
-      {pages.map((page) => (
-        <Button
-          key={page}
-          variant="outline"
-          size="icon"
-          aria-current={page === currentPage ? "page" : undefined}
-          className={cn(page === currentPage && "border-brand bg-brand/15 text-brand-text")}
-          render={page !== currentPage ? <Link href={pageHref(basePath, params, page)} /> : undefined}
-        >
-          {page}
-        </Button>
-      ))}
+      {items.map((item, index) =>
+        item === "ellipsis" ? (
+          <span
+            key={`ellipsis-${index}`}
+            aria-hidden
+            className="flex size-8 items-center justify-center text-muted-foreground"
+          >
+            …
+          </span>
+        ) : (
+          <Button
+            key={item}
+            variant="outline"
+            size="icon"
+            aria-current={item === currentPage ? "page" : undefined}
+            className={cn(item === currentPage && "border-brand bg-brand/15 text-brand-text")}
+            render={item !== currentPage ? <Link href={pageHref(basePath, params, item)} /> : undefined}
+          >
+            {item}
+          </Button>
+        )
+      )}
 
       <Button
         variant="outline"
