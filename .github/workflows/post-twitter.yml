@@ -1,10 +1,14 @@
 name: Postar cupom no Twitter/X
 
 on:
-  schedule:
-    # 4x/dia, a cada 6 horas (horário em UTC — Brasília é UTC-3).
-    # 1 post por execução = ~120 posts/mês, com folga na cota gratuita do X.
-    - cron: "0 */6 * * *"
+  # Agendamento PAUSADO (ago/2026): o plano gratuito do X recusa postar com
+  # "402 credits depleted" — postar pela API exige plano pago/creditos. Enquanto
+  # isso nao for resolvido, deixamos so o disparo manual pra nao gerar e-mail de
+  # falha de 6 em 6 horas. Pra religar o automatico, descomente o bloco abaixo.
+  # schedule:
+  #   # 4x/dia, a cada 6 horas (horário em UTC — Brasília é UTC-3).
+  #   # 1 post por execução = ~120 posts/mês.
+  #   - cron: "0 */6 * * *"
   workflow_dispatch:
 
 jobs:
