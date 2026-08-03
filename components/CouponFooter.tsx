@@ -4,6 +4,12 @@ import { useState } from "react";
 import { ThumbsUp, ThumbsDown, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress, ProgressTrack, ProgressIndicator } from "@/components/ui/progress";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import { cn, formatRelativeTime } from "@/lib/utils";
 
 type Props = {
@@ -116,20 +122,28 @@ export function CouponFooter({ couponId, initialHelpful, initialNotHelpful, expi
       </div>
 
       <div className="flex items-center justify-between gap-3 text-muted-foreground">
-        <div className="flex items-center gap-3">
-          {expiresAt && (
-            <span className="flex items-center gap-1">
-              <Calendar className="size-3" />
-              {formatDate(expiresAt)}
-            </span>
-          )}
-          {updatedAt && (
-            <span className="flex items-center gap-1" title="Baseado na última verificação real deste cupom">
-              <Clock className="size-3" />
-              Verificado {formatRelativeTime(updatedAt)}
-            </span>
-          )}
-        </div>
+        <TooltipProvider>
+          <div className="flex items-center gap-3">
+            {expiresAt && (
+              <Tooltip>
+                <TooltipTrigger className="flex cursor-help items-center gap-1 whitespace-nowrap rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50">
+                  <Calendar className="size-3" />
+                  {formatDate(expiresAt)}
+                </TooltipTrigger>
+                <TooltipContent>Data de expiração</TooltipContent>
+              </Tooltip>
+            )}
+            {updatedAt && (
+              <Tooltip>
+                <TooltipTrigger className="flex cursor-help items-center gap-1 whitespace-nowrap rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50">
+                  <Clock className="size-3" />
+                  Verificado {formatRelativeTime(updatedAt)}
+                </TooltipTrigger>
+                <TooltipContent>Baseado na última verificação real deste cupom</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        </TooltipProvider>
         <span>{clicks > 0 ? `${clicks.toLocaleString("pt-BR")} usos` : "Novo"}</span>
       </div>
     </div>
